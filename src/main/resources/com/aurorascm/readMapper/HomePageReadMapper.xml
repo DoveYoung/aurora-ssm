@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="HomePageReadMapper">
+
+ 	<resultMap type="GoodsCategory" id="GoodsCategoryResultMap">
+ 		<id column="gc_id" property="gcID"/>
+		<result column="category_id" property="categoryID"/>
+		<result column="category_name" property="categoryName"/>
+		<result column="category_parent_id" property="categoryParentID"/>
+		<result column="category_level" property="categoryLevel"/>
+		<result column="location_sort" property="locationSort"/>
+	</resultMap>
+	
+	<resultMap type="GTableColumn" id="GTableColumnResultMap">
+		<id column="gtc_id" property="gtcID"/>
+		<result column="table_name" property="tableName"/>
+		<result column="columns" property="columns"/>
+	</resultMap>
+	
+	<!-- 淘宝/京东热卖首页数据显示 -->
+	<select id="getTJHotSellList" parameterType="String" resultType="pd" >
+		SELECT 
+			goods_id,
+			goods_name_new,
+			price_trend_sign,
+			price_trend_index,
+			sale_trend_sign,
+			sale_trend_index,
+			time_period
+		FROM 
+			aurorascm.home_tj_sell
+		WHERE 
+			tj_type = #{type}
+		ORDER BY 
+			operate_time DESC
+		LIMIT 0, 5
+	</select>
+	
+	<!-- 首页热门品牌显示 b.brand_map,-->
+	<select id="getHotBrand" parameterType="int" resultType="pd">
+		SELECT 
+			b.brand_id,
+			b.brand_name,
+			b.recommend_map,
+			b.care_num,
+			b.brand_describe1
+		FROM 
+			aurorascm.home_hot_brand h
+		INNER JOIN
+			aurorascm.brand b
+		ON 
+			h.brand_id = b.brand_id
+		WHERE
+			h.page_num = #{pageNum}
+		ORDER BY 
+			h.location_sort ASC
+		LIMIT 0, 12
+	</select>
+	
+	<!-- 首页获取热门品牌最大页码 -->
+	<select id="getHBMaxPN" resultType="String">
+		SELECT 
+			max(page_num) bpn
+		FROM 
+			aurorascm.home_hot_brand
+		WHERE
+			brand_id != ''
+	</select>
+
+	<!-- 获取一级类目 -->
+	<select id="getCategory1" resultType="pd" >
+		SELECT 
+			category_id,
+			category_name
+		FROM 
+			aurorascm.goods_category
+		WHERE 
+			category_level = '1'
+		ORDER BY location_sort ASC
+	</select>
+	
+	<!-- 获取一级类目【不包含食品药品、五金卫浴】 -->
+	<select id="getCategory15" resultType="pd" >
+		SELECT 
+			category_id,
+			category_name
+		FROM 
+			aurorascm.goods_category
+		WHERE 
+			category_level = '1'
+		ORDER BY 
+			location_sort ASC
+		LIMIT 0, 5
+	</select>
+	
+	<!-- 获取一级类目【增加奶粉;不包含食品药品、五金卫浴】 -->
+	<select id="getCategory145" resultType="pd" >
+		SELECT 
+			category_id,
+			category_name
+		FROM 
+			aurorascm.goods_category
+		WHERE 
+			category_level = '1'
+		OR
+			category_level = '4'
+		ORDER BY 
+			location_sort ASC
+		LIMIT 0, 7
+	</select>
+	
+	<!-- 根据父级类目搜索子类目-->
+	<select id="getCategoryByPID" parameterType="Object" resultMap="GoodsCategoryResultMap" >
+		SELECT 
+			category_id,
+			category_name
+		FROM 
+			aurorascm.goods_category
+		WHERE 
+			category_parent_id = #{categoryID}
+		ORDER BY 
+			location_sort ASC
+	</select>
+	
+	<!-- 首页本站热卖商品展示 -->
+	<select id="getHomeHotSell" parameterType="Object" resultType="pd" >
+		SELECT 
+			h.goods_id,
+			h.advertise_map,
+			h.goods_name_new,
+			m.goods_price2,
+			m.deposit
+		FROM 
+			aurorascm.home_hot_sell h
+		INNER JOIN
+			aurorascm.goods_manage m
+		ON 
+			h.goods_id = m.goods_id
+		WHERE 
+			h.category1_id = #{category1ID}
+		ORDER BY 
+			h.location_sort ASC
+		LIMIT 0, 10
+	</select>
+	
+	<!-- 首页获取新货推荐最大页码 -->
+	<select id="getNGMaxPN" resultType="String">
+		SELECT 
+			max(page_num) ngpn
+		FROM 
+			aurorascm.home_new_goods
+		WHERE
+			goods_id != ''
+	</select>
+	
+	<!-- 首页新货推荐商品展示 -->
+	<select id="getHomeNewGoods" parameterType="int" resultType="pd" >
+		SELECT 
+			h.goods_id,
+			h.goods_name_new,
+			c.main_map,
+			c.brand_id,
+			m.goods_price2,
+			m.jd_price,
+			m.tb_price,
+			m.sell_store_num,
+			m.deposit
+		FROM 
+			aurorascm.home_new_goods h
+		INNER JOIN
+			aurorascm.goods_common c
+		ON 
+			h.goods_id = c.goods_id
+		INNER JOIN
+			aurorascm.goods_manage m
+		ON 
+			h.goods_id = m.goods_id
+		WHERE 
+			h.page_num = #{pageNum}
+		ORDER BY 
+			h.location_sort ASC
+		LIMIT 0, 9
+	</select>
+	
+	<!-- 首页保税仓、海外直邮热卖显示 -->
+	<select id="getHomeHBHotSell" parameterType="int" resultType="pd">
+		SELECT 
+			h.goods_id,
+			h.goods_name_new,
+			h.month_turnover,
+			c.main_map,
+			c.brand_id,
+			m.goods_price2,
+			m.deposit
+		FROM 
+			aurorascm.home_hb_sell h
+		INNER JOIN
+			aurorascm.goods_common c
+		ON
+			h.goods_id = c.goods_id
+		INNER JOIN
+			aurorascm.goods_manage m
+		ON 
+			h.goods_id = m.goods_id
+		WHERE 
+			h.ship_type = #{shipType}
+		ORDER BY 
+			h.location_sort ASC
+		LIMIT 0, 6
+	</select>
+	
+	<!-- 首页一级类目大额采购显示数据 -->
+	<select id="getHomeLargeBuy" parameterType="Object" resultType="pd">
+		SELECT 
+			h.goods_id,
+			h.goods_name_new,
+			h.exw,
+			h.num,
+			h.norm
+		FROM 
+			aurorascm.home_large_buy h
+		INNER JOIN
+			aurorascm.goods_manage m
+		ON 
+			h.goods_id = m.goods_id
+		WHERE 
+			h.category1_id = #{category1ID}
+		AND
+			m.goods_state = '4'
+		ORDER BY 
+			h.operate_time DESC
+		LIMIT 0, 10
+	</select>
+	
+	<!-- 首页小额采购模块对应一级目录下的品牌 -->
+	<select id="getLessBuyBrand" parameterType="Object" resultType="pd" >
+		SELECT
+			DISTINCT(blocation_sort),
+			brand_id,
+			brand_name
+		FROM 
+			aurorascm.home_less_buy
+		WHERE 
+			category1_id = #{category1ID}
+		ORDER BY 
+			blocation_sort ASC
+		LIMIT 0,3
+	</select>
+	
+	<!-- 首页小额采购模块一级目录>品牌下的商品 -->
+	<select id="getLessBuy" parameterType="pd" resultType="pd" >
+		SELECT
+			h.goods_id,
+			h.goods_name_new,
+			m.goods_price2,
+			m.rnum1,
+			m.rnum2,
+			m.ship_type	
+		FROM 
+			aurorascm.home_less_buy h
+		INNER JOIN
+			aurorascm.goods_manage m
+		ON 
+			h.goods_id = m.goods_id
+		WHERE 
+			h.category1_id = #{category1ID}
+		AND
+			h.brand_id = #{brandID}
+		AND
+			h.blocation_sort = #{blocationSort}
+		ORDER BY 
+			h.glocation_sort ASC
+		LIMIT 0,5
+	</select>
+	
+	<!-- 首页小额采购模块对应一级目录下的品牌 -->
+	<select id="getLessBuyMore" parameterType="pd" resultType="pd" >
+		SELECT
+			h.goods_id,
+			h.goods_name_new,
+			m.goods_price2,
+			m.rnum1,
+			m.rnum2,
+			m.ship_type			
+		FROM 
+			aurorascm.home_less_buy h
+		INNER JOIN
+			aurorascm.goods_manage m
+		ON 
+			h.goods_id = m.goods_id
+		INNER JOIN
+			aurorascm.goods_common c
+		ON 
+			h.goods_id = c.goods_id
+		WHERE 
+			h.category1_id = #{category1ID}
+		AND
+			h.blocation_sort = '4'
+		ORDER BY 
+			glocation_sort ASC
+		LIMIT 0,5
+	</select>
+	
+	<!-- BYG 首页小额采购模块对应一级目录下的品牌 -->
+	<select id="getHomeHotWord" resultType="String">
+		SELECT
+			 word
+		FROM
+			aurorascm.home_search_word
+		LIMIT 1
+	</select>
+	
+	<!-- BYG 首页获取行业数据 -->
+	<select id="getHomeIndustryData" parameterType="int" resultType="pd">
+		SELECT
+			 *
+		FROM
+			aurorascm.data_home_industry
+		WHERE 
+			type = #{type}
+		ORDER BY 
+			location ASC
+		LIMIT 0,5
+	</select>
+	
+	
+		<!-- SSY 首页四个活动专题板块 -->
+	<select id="getHomeSpecial" resultType="pd">
+		SELECT
+			*
+		FROM
+			aurorascm.home_special
+		ORDER BY
+			special_id ASC
+		LIMIT 0,4
+	</select>
+	
+	<!-- SSY 条件查询大额采购页面商品数量  -->
+	<select id="getLargeBuyNum" parameterType="page"  resultType="int">
+		SELECT
+			count(h.id) num
+		FROM
+			aurorascm.home_large_buy h
+		INNER JOIN
+			aurorascm.goods_category gc
+		ON 
+			h.category1_id = gc.category_id
+		INNER JOIN
+			aurorascm.brand b
+		ON 
+			h.brand_id = b.brand_id
+		WHERE 1=1
+		<if test="pd.category1ID != null ">
+		AND 
+		h.category1_id = #{pd.category1ID}
+		</if>
+		<if test="pd.brandID != null ">
+		AND
+		h.brand_id = #{pd.brandID}
+		</if>
+	</select>
+	
+		<!-- SSY  条件查询大额采购页面商品-->
+	<select id="getLargeBuyList" parameterType="page"  resultType="pd">
+		SELECT
+			h.*,gc.category_name,b.brand_name,
+			c.main_map,c.goods_code
+		FROM
+			aurorascm.home_large_buy h
+		INNER JOIN
+			aurorascm.goods_common c
+		ON 
+			h.goods_id = c.goods_id
+		INNER JOIN
+			aurorascm.goods_manage m
+		ON 
+			h.goods_id = m.goods_id
+		INNER JOIN
+			aurorascm.goods_category gc
+		ON 
+			h.category1_id = gc.category_id
+		INNER JOIN
+			aurorascm.brand b
+		ON 
+			h.brand_id = b.brand_id
+		WHERE 
+			m.goods_state = 4
+		<if test="pd.category1ID != null ">
+		AND 
+		h.category1_id = #{pd.category1ID}
+		</if>
+		<if test="pd.brandID != null ">
+		AND
+		h.brand_id = #{pd.brandID}
+		</if>
+		ORDER BY
+			h.operate_time DESC
+		LIMIT 
+			#{fromIndex},#{pageSize}
+	</select>
+	
+	<!-- 查询大额采购里所有品牌 -->
+	<select id="getBrandLargeBuy" parameterType="page" resultType="pd">
+	SELECT
+		DISTINCT  b.brand_id,b.brand_name 
+		FROM
+		aurorascm.brand b
+		INNER JOIN 
+		aurorascm.home_large_buy l
+		ON
+		b.brand_id = l.brand_id
+		<if test="pd.category1ID !=null ">
+		WHERE
+		l.category1_id = #{pd.category1ID}
+		</if>
+	</select>
+	
+</mapper>

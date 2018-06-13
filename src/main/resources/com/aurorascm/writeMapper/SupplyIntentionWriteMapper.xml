@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="SupplyIntentionWriteMapper">
+
+	<!-- @author SSY 2018-05-14 新增全站供货意向-->
+ 	<insert id="addSupplyIntention" parameterType="com.aurorascm.entity.supply.intention.SupplyIntention">
+ 		INSERT INTO
+ 			aurorascm.supply_intention
+ 			(company_name,contacts,phone,advantage_brand,chain_path,convenient_time,input_time)
+ 		VALUES
+ 			(#{companyName},#{contacts},#{phone},#{advantageBrand},#{chainPath},#{convenientTime},#{inputTime})
+ 	</insert>
+ 
+ 	<!-- @author SSY 2018-05-14 新增全站供货意向-->
+ 	<insert id="addSupplyGoodsIntention" parameterType="com.aurorascm.entity.supply.intention.SupplyGoodsIntention">
+ 		INSERT INTO
+ 			aurorascm.supply_goods_intention
+ 			(goods_id,goods_name,contacts,phone,delivery_type,price,convenient_time,input_time)
+ 		VALUES
+ 			(#{goodsID},#{goodsName},#{contacts},#{phone},#{deliveryType},#{price},#{convenientTime},#{inputTime})
+ 	</insert>
+ 	
+ 	
+ 
+</mapper>

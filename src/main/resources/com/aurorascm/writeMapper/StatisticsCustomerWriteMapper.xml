@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="StatisticsCustomerWriteMapper">
+
+<!-- 用户登陆时间段,按照12个时辰段,增加该时间段累计登陆次数和当天登陆次数, -->
+<insert id="addCustomerLoginDistribution" parameterType="pd"> 
+
+        <selectKey keyProperty="count" resultType="int" order="BEFORE"> 
+            SELECT 
+            	count(customer_id) num
+            FROM 
+            	aurorascm.s_customer_login_distribution
+            WHERE 
+            	customer_id= #{customerID}
+        </selectKey> 
+        <!-- 如果大于0则+1 --> 
+        <if test="count>0"> 
+            UPDATE 
+           		aurorascm.s_customer_login_distribution
+            SET 
+           	 	${hour} = ${hour} + 1
+            WHERE 
+            	customer_id = #{customerID}
+		</if> 
+
+        <!-- 如果等于0则新增 --> 
+        <if test="count==0">
+			INSERT INTO
+				aurorascm.s_customer_login_distribution
+			(
+				customer_id,${hour}, type
+			) VALUES (
+			    #{customerID}, 1, 1
+ 			) ,	(
+			    #{customerID}, 1, 2
+ 			) 
+        </if> 
+    </insert>
+
+
+
+<!-- 用户访问商品详情页,用户按类目点击+1 -->
+ <insert id="addCustomerCategoryClickNum" parameterType="pd"> 
+
+        <selectKey keyProperty="count" resultType="int" order="BEFORE"> 
+            SELECT 
+            	count(customer_id) num
+            FROM 
+            	aurorascm.s_customer_click 
+            WHERE 
+            	customer_id= #{customerID}
+        </selectKey> 
+        <!-- 如果大于0则+1 --> 
+        <if test="count>0"> 
+            UPDATE 
+           		aurorascm.s_customer_click 
+            SET 
+           	 	${category} = ${category} + 1
+            WHERE 
+            	customer_id= #{customerID}
+		</if> 
+
+        <!-- 如果等于0则新增 ,第一次访问不累计--> 
+        <if test="count==0">
+			INSERT INTO
+				aurorascm.s_customer_click 
+			(
+				customer_id,${category}
+			) VALUES (
+			    #{customerID}, 1 
+ 			)  
+        </if> 
+    </insert>
+    
+ 	<!--更新个人微仓周转时间 -->
+	<update id="updateMWTurnoverTime" parameterType="pd">
+		UPDATE
+			aurorascm.s_mw_turnover_rate
+		SET
+			day_num = day_num + #{turnoverDays}*#{goodsNum},
+			num = num + #{goodsNum}
+		WHERE
+			customer_id = #{customerID}
+	</update>
+	   
+    
+    
+ 
+</mapper>

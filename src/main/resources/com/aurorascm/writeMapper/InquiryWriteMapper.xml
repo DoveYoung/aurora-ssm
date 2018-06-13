@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="InquiryWriteMapper">
+
+	<!-- @author SSY 2018-1-5 提交询价,添加询价表 -->
+	<insert id="addInquriy" parameterType="com.aurorascm.entity.InquiryManage">
+        INSERT INTO
+        	aurorascm.inquiry_sheet 
+        	(inquiry_id, inquiry_time, customer_id, customer_name, customer_email, customer_mobile, inquiry_times, source_id, sales_manager)
+        VALUES
+         	(#{inquiryID}, #{inquiryTime}, #{customerID}, #{customerName}, #{customerEmail}, #{customerMobile}, #{inquiryTimes}, #{sourceID}, #{salesManager})
+    </insert>
+
+	<!-- @author SSY 2018-1-5 提交询价,保存询价商品 -->
+	<insert id="addInquriyGoods" parameterType="com.aurorascm.entity.InquiryGoods">
+        INSERT INTO
+        	aurorascm.inquiry_goods 
+        	(inquiry_id, goods_name, goods_map, goods_brand, goods_norm, goods_code,buy_num,update_num,deliver_country, 
+        	logistics_type,deliver_city, trade_type,customer_remark, currency_sign,currency_name)
+        VALUES  
+			(#{inquiryID},#{goodsName},#{goodsMap},#{goodsBrand},#{goodsNorm},#{goodsCode},#{buyNum},#{buyNum},#{deliverCountry},
+			#{logisticsType},#{deliverCity},#{tradeType},#{customerRemark},#{currencySign},#{currencyName})
+    </insert>
+
+
+
+
+
+
+
+
+	<!-- ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ -->
+	<!-- **************************************我是分割线,上面是申士耀******************************** -->
+	<!-- ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ -->
+
+
+	<!-- 更新商品询价报价 -->
+	<update id="updateQuote" parameterType="pd">
+		UPDATE
+			aurorascm.inquiry_goods
+		SET
+		<if test="goodsState !=null and goodsState=='3'.toString">
+			inquiry_goods_state = 3,
+		</if>
+		<if test="goodsState !=null and goodsState!='3'.toString">
+			inquiry_goods_state = 1,
+			trade_type = #{tradeType},
+			logistics_type = #{logisticsType},
+			goods_code = #{goodsCode},
+			deliver_country = #{deliverCountry},
+			deliver_city = #{deliverCity},
+			ready_time = #{readyTime},
+			supply_price = #{supplyPrice},
+			postage = #{postage},
+			currency_name = #{currencyName},
+			currency_sign = #{currencySign}
+		</if>
+			quoter = #{operator},
+			quote_time = #{time}
+		WHERE
+			inquiry_id = #{inquiryID}
+		AND
+			inquiry_sheet_id = #{inquirySID}
+	</update>
+
+
+<!-- @author SSY 更新商品询价报价 -->
+	<update id="commitQuote" parameterType="pd">
+		UPDATE
+			aurorascm.inquiry_sheet
+		SET
+		 	reviewer = #{operator},
+		 	review_time = #{time},
+		 	sheet_state =1
+		WHERE
+			inquiry_sheet_id = #{inquirySID}
+	</update>
+
+</mapper>

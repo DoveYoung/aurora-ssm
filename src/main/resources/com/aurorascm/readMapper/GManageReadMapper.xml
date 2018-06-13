@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="GManageReadMapper">
+
+	<resultMap type="GoodsManage" id="goodsDMResultMap">
+		<id column="goods_id" property="goodsID"/>
+		<result column="relate1_gid" property="relate1GID"/>
+		<result column="relate2_gid" property="relate2GID"/>
+		<result column="ship_type" property="shipType"/>
+		<result column="cost_price" property="costPrice"/>
+		<result column="goods_price1" property="goodsPrice1"/>
+		<result column="goods_price2" property="goodsPrice2"/>
+		<result column="rnum1" property="rnum1"/>
+		<result column="rnum2" property="rnum2"/>
+		<result column="rnum3" property="rnum3"/>
+		<result column="goods_sales" property="goodsSales"/>
+		<result column="fake_sales" property="fakeSales"/>
+		<result column="goods_stock" property="goodsStock"/>
+		<result column="stock_emergency" property="stockEmergency"/>	
+		<result column="deposit" property="deposit"/>
+		<result column="weight" property="weight"/>
+		<result column="norm" property="norm"/>
+		<result column="is_activity" property="isActivity"/> 
+		<result column="original_price1" property="originalPrice1"/> 
+		<result column="original_price2" property="originalPrice2"/> 
+		<result column="postage_style" property="postageStyle"/>
+		<result column="market_price" property="marketPrice"/>
+		<result column="exw" property="exw"/>
+		<result column="goods_state" property="goodsState"/>
+		<result column="discount" property="discount"/>
+		<association property="goodsDetails" column="goods_id" javaType="GoodsDetails">
+			<id column="goods_id" property="goodsID"/>
+			<result column="goods_name" property="goodsName"/>
+			<result column="goods_code" property="goodsCode"/>
+			<result column="weight" property="weight"/>
+			<result column="volume" property="volume"/>
+			<result column="product_area" property="productArea"/>
+			<result column="property" property="property"/>
+			<result column="main_map" property="mainMap"/>
+			<result column="map6" property="map6"/>
+			<result column="advertise_map" property="advertiseMap"/>
+			<result column="goods_describe" property="describe"/>
+		</association>
+		<association property="goodsCommon" column="goods_id" javaType="GoodsCommon">
+			<id column="goods_id" property="goodsID"/>
+			<result column="brand_id" property="brandID"/>
+			<result column="brand_name" property="brandName"/>
+			<result column="category2_id" property="category2ID"/>
+			<result column="category2" property="category2"/>
+			<result column="category1_id" property="category1ID"/>
+			<result column="category1" property="category1"/>
+		</association>
+	</resultMap>
+
+	<!-- 字段 -->
+	<sql id="FieldA">
+		manage_id,
+		goods_id,
+		relate1_gid,
+		relate2_gid,
+		ship_type,
+		<!-- old_price1,
+		old_price2, 注释时间SSY2017-11-9-->
+		goods_price1,
+		goods_price2,
+		rnum1,
+		rnum2,
+		rnum3,
+		goods_sales,
+		fake_sales,
+		goods_state,
+		Inputer,
+		reviewer,
+		goods_stock,
+		stock_emergency,
+		deposit,
+		postage_style,
+		taxes,
+		lnput_time,
+		submit_time,
+		review_time,
+		up_time,
+		weight,
+		down_time,
+		discount
+	</sql>
+
+	<!-- 通过商品ID获取商品管理信息 -->
+	<select id="getGManage" parameterType="pd" resultType="pd" >
+		SELECT 
+			<include refid="FieldA"></include>
+		FROM 
+			aurorascm.goods_manage
+		WHERE 
+			goods_id = #{goodsID}
+	</select>
+	
+	<!-- 通过商品ID获取商品邮寄方式 -->
+	<select id="getShipType" parameterType="String" resultType="int" >
+		SELECT 
+			ship_type
+		FROM 
+			aurorascm.goods_manage
+		WHERE 
+			goods_id = #{goodsID}
+	</select>
+	
+	<!-- 通过商品ID获取商品详情页信息 -->
+	<select id="getGoodsDM" parameterType="String" resultMap="goodsDMResultMap">
+		SELECT 
+			m.*,
+			d.*,
+			c.goods_id,
+			c.brand_id,
+			c.brand_name,
+			c.category1_id,
+			c.category1,
+			c.category2_id,
+			c.category2
+		FROM 
+			aurorascm.goods_manage m
+		INNER JOIN
+			aurorascm.goods_details d
+		ON
+			d.goods_id = m.goods_id
+		INNER JOIN
+			aurorascm.goods_common c
+		ON
+			m.goods_id = c.goods_id
+		WHERE 
+			m.goods_id = #{goodsID}
+	</select>
+				
+	<!-- 通过商品ID获取商品管理信息for购买 -->
+	<select id="getGMDForLB" parameterType="pd" resultMap="goodsDMResultMap" >
+		SELECT 
+			m.goods_id,
+			m.ship_type,
+			m.cost_price,
+			m.goods_price1,
+			m.goods_price2,
+			m.rnum1,
+			m.rnum2,
+			m.rnum3,
+			m.goods_stock,
+			m.stock_emergency,
+			m.deposit,
+			m.weight,
+			m.postage_style,
+			m.exw,
+			d.goods_name,
+			d.goods_code,
+			d.main_map
+		FROM 
+			aurorascm.goods_manage m
+		INNER JOIN
+			aurorascm.goods_details d
+		ON
+			m.goods_id = d.goods_id
+		WHERE 
+			m.goods_id = #{goodsID}
+		AND 
+			m.goods_state = '4'
+	</select> 
+	
+	<!-- 根据品牌id获取销量最高的四个商品 -->
+	<select id="getGoodsBybrandID" parameterType="String" resultType="pd" >
+		SELECT 
+			c.goods_id,
+			c.goods_name,
+			c.brand_id,
+			c.ship_type,
+			c.goods_sign,
+			c.main_map,
+			m.goods_price1,
+			m.rnum1,
+			m.goods_price2,
+			m.rnum2,
+			m.rnum3,
+			m.market_price,
+			m.goods_sales,
+			m.fake_sales,
+			m.goods_stock,
+			m.jd_price,
+			m.tb_price,
+			m.sell_store_num,
+			b.brand_map,
+			b.care_num,
+			b.brand_name
+		FROM 
+			aurorascm.brand b
+		LEFT JOIN
+			aurorascm.goods_common c
+		ON 
+			c.brand_id = b.brand_id
+		LEFT JOIN
+			aurorascm.goods_manage m
+		ON 
+			c.goods_id = m.goods_id
+		WHERE
+			m.goods_state = '4'
+		AND 
+			c.brand_id = #{brandID}
+		ORDER BY 
+			m.goods_sales DESC
+		LIMIT 0, 4
+	</select>
+	
+	<!-- 根据商品id大额采购商品基本信息 -->
+	<select id="getPDGoodsByID" parameterType="String" resultType="pd" >
+		SELECT 
+			c.brand_name as goods_brand,c.goods_name,c.goods_code,m.norm as goods_norm,c.main_map as goods_map
+		FROM 
+			aurorascm.goods_common c
+		INNER JOIN
+			aurorascm.goods_manage m
+		ON 
+			c.goods_id = m.goods_id
+		WHERE
+			c.goods_id = #{goodsID}
+	</select>
+	
+	<!-- @author SSY 2018-05-15 查询活动商品 活动结束时间 ,如果有其他活动表....-->
+	<select id="getActivityGoods" parameterType="String" resultMap="HomeTimedActivityReadMapper.timedActivityMap" >
+		SELECT 
+			a.*
+		FROM
+			aurorascm.home_timed_goods g
+		INNER JOIN
+			aurorascm.home_timed_activity a
+		ON 
+			a.activity_id = g.activity_id
+		WHERE
+			a.activity_state = 2
+		AND
+			g.goods_id = #{goodsID}
+		LIMIT 1
+	</select>
+	
+	
+	
+</mapper>

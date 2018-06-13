@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ContractWriteMapper">
+	 
+	<!-- @author SSY 2018-1-11 新增合同采购单 -->
+	<insert id="createContract" parameterType="com.aurorascm.entity.InquiryGoods">
+		INSERT INTO aurorascm.contract_manage 
+			(
+				contract_id, inquiry_id, sales_manager, contract_money, total_postage, create_time, 
+				customer_id, customer_name, customer_email, customer_mobile, company, address
+			)
+		VALUES	
+			(
+				#{contractID}, #{inquiryID}, #{salesManager}, #{contractMoney}, #{totalPostage}, #{createTime},
+				#{customerID}, #{customerName}, #{customerEmail}, #{customerMobile}, #{company}, #{address}
+			)
+	</insert>
+		
+	<!-- @author SSY 2018-1-11 新增合同采购商品 -->
+	<insert id="saveContractGoods" parameterType="com.aurorascm.entity.InquiryGoods">
+		INSERT INTO aurorascm.contract_goods 
+			(
+				contract_id,goods_name, goods_code, goods_brand, goods_norm, goods_num, goods_map,
+				deliver_country, deliver_city, trade_type, ready_time, logistics_type, volume, 
+				pallet_volume, pallet_price, postage, goods_price, supply_price, currency_name, currency_sign,valid_time
+			)
+		VALUES	
+		<foreach collection="list" index="item" item="item" separator=",">
+			(
+				#{item.inquiryID}, #{item.goodsName}, #{item.goodsCode}, #{item.goodsBrand}, #{item.goodsNorm}, #{item.updateNum}, #{item.goodsMap}, 
+				#{item.deliverCountry}, #{item.deliverCity}, #{item.tradeType}, #{item.readyTime}, #{item.logisticsType}, #{item.volume}, #{item.palletVolume}, 
+				#{item.palletPrice}, #{item.postage}, #{item.goodsPrice}, #{item.supplyPrice}, #{item.currencyName}, #{item.currencySign},#{item.validTime}
+			)
+		</foreach>
+	</insert> 
+ 
+	<!-- @author SSY 2018-1-11 支付成功后，更新合同支付信息 -->
+	<update id="updateContractPayInfo" parameterType="pd">
+		UPDATE 
+			aurorascm.contract_manage 
+		SET
+			pay_path = #{payPath},
+			trade_no = #{tradeNo},
+			pay_money = #{payMoney},
+			contract_state = #{contractState},
+			pay_time = #{payTime}
+		WHERE
+			contract_id = #{contractID}
+	</update>
+ 
+	<!-- ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ -->
+	<!-- **************************************我是分割线******************************************* -->
+	<!-- ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ -->
+ 
+	
+</mapper>

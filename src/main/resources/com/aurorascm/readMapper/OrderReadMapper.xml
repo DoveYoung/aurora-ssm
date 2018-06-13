@@ -1,0 +1,503 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="OrderReadMapper">
+
+<resultMap type="com.aurorascm.entity.OrderManage" id="OrderResultMap">
+		<id column="order_id" property="orderID"/>
+		<result column="order_level" property="orderLvel"/>
+		<result column="customer_name" property="customerName"/>
+		<result column="customer_id" property="customerID"/>
+		<result column="sales_manager" property="salesManager"/>
+		<result column="consignee" property="consignee"/>
+		<result column="ship_address" property="shipAddress"/>
+		<result column="consignee_mobile" property="consigneeMobile"/>
+		<result column="consignee_id_card" property="consigneeCard"/>
+		<result column="order_type" property="orderType"/>
+		<result column="pay_type" property="payType"/>
+		<result column="currency_unit" property="currencyUnit"/>
+		<result column="pay_money" property="payMoney"/>
+		<result column="should_payment" property="shouldPayment"/>
+		<result column="total_money" property="totalMoney"/>
+		<result column="refund_money" property="refundMoney"/>
+		<result column="postage" property="postage"/>
+		<result column="pay_time" property="payTime"/>
+		<result column="pay_path" property="payPath"/>
+		<result column="trade_no" property="tradeNo"/>
+		<result column="out_trade_no" property="outTradeNo"/>
+		<result column="order_time" property="orderTime"/>
+		<result column="order_state" property="orderState"/>	
+		<result column="customer_remark" property="customerRemark"/>
+		<result column="send_time" property="sendTime"/>
+		<result column="refund_time" property="refundTime"/>
+		<result column="finish_time" property="finishTime"/>
+		<result column="finish_operator" property="finishOperator"/>
+		<result column="cancel_time" property="cancelTime"/>
+		<result column="cancel_operator" property="cancelOperator"/> 
+		<result column="trade_type" property="tradeType"/>
+		<result column="bill_num" property="billNum"/>
+		<result column="tax" property="tax"/>
+	</resultMap>
+	<resultMap type="com.aurorascm.entity.OrderGoods" id="OrderGoodsResultMap">
+		<id column="og_id" property="ogID"/>
+		<result column="order_id" property="orderID"/>
+		<result column="goods_id" property="goodsID"/>
+		<result column="goods_name" property="goodsName"/>
+		<result column="goods_code" property="goodsCode"/>
+		<result column="goods_num" property="goodsNum"/>
+		<result column="currency_unit" property="currencyUnit"/>
+		<result column="goods_price" property="goodsPrice"/>
+		<result column="goods_map" property="goodsMap"/>
+		<result column="goods_weight" property="goodsWeight"/>
+		<result column="deposit" property="deposit"/>
+		<result column="postage_style" property="postageStyle"/>
+		<result column="pay_type" property="payType"/>
+		<result column="trade_type" property="tradeType"/>
+		<result column="logistics_type" property="logisticsType"/>
+		<result column="logistics_company_code" property="logisticsCompanyCode"/>
+		<result column="logistics_company" property="logisticsCompany"/>
+		<result column="logistics_number" property="logisticsNumber"/>
+	</resultMap>
+	<resultMap type="com.aurorascm.entity.OrderManage" id="OrderManageResultMap">
+		<id column="order_id" property="orderID"/>
+		<result column="order_level" property="orderLvel"/>
+		<result column="customer_name" property="customerName"/>
+		<result column="customer_id" property="customerID"/>
+		<result column="sales_manager" property="salesManager"/>
+		<result column="consignee" property="consignee"/>
+		<result column="ship_address" property="shipAddress"/>
+		<result column="consignee_mobile" property="consigneeMobile"/>
+		<result column="consignee_id_card" property="consigneeCard"/>
+		<result column="order_type" property="orderType"/>
+		<result column="pay_type" property="payType"/>
+		<result column="currency_unit" property="currencyUnit"/>
+		<result column="pay_money" property="payMoney"/>
+		<result column="should_payment" property="shouldPayment"/>
+		<result column="total_money" property="totalMoney"/>
+		<result column="refund_money" property="refundMoney"/>
+		<result column="postage" property="postage"/>
+		<result column="pay_time" property="payTime"/>
+		<result column="pay_path" property="payPath"/>
+		<result column="trade_no" property="tradeNo"/>
+		<result column="out_trade_no" property="outTradeNo"/>
+		<result column="order_time" property="orderTime"/>
+		<result column="order_state" property="orderState"/>	
+		<result column="customer_remark" property="customerRemark"/>
+		<result column="send_time" property="sendTime"/>
+		<result column="refund_time" property="refundTime"/>
+		<result column="finish_time" property="finishTime"/>
+		<result column="finish_operator" property="finishOperator"/>
+		<result column="cancel_time" property="cancelTime"/>
+		<result column="cancel_operator" property="cancelOperator"/>
+		<result column="trade_type" property="tradeType"/>
+		<result column="bill_num" property="billNum"/>
+		<result column="tax" property="tax"/>
+		<collection property="orderGoods" column="order_id" ofType="com.aurorascm.entity.OrderGoods">
+			<id column="og_id" property="ogID"/>
+			<result column="order_id" property="orderID"/>
+			<result column="goods_id" property="goodsID"/>
+			<result column="goods_name" property="goodsName"/>
+			<result column="goods_code" property="goodsCode"/>
+			<result column="goods_num" property="goodsNum"/>
+			<result column="currency_unit" property="currencyUnit"/>
+			<result column="goods_price" property="goodsPrice"/>
+			<result column="goods_map" property="goodsMap"/>
+			<result column="goods_weight" property="goodsWeight"/>
+			<result column="deposit" property="deposit"/>
+			<result column="postage_style" property="postageStyle"/>
+			<result column="pay_type" property="payType"/>
+			<result column="trade_type" property="tradeType"/>
+			<result column="logistics_type" property="logisticsType"/>
+			<result column="logistics_company_code" property="logisticsCompanyCode"/>
+			<result column="logistics_company" property="logisticsCompany"/>
+			<result column="logistics_number" property="logisticsNumber"/>
+		</collection>
+	</resultMap>
+
+<!-- @author SSY 2018-05-23 查询符合条件的订单号  -->
+	<select id="getOrderIDPage" parameterType="page" resultMap="OrderManageResultMap">
+		SELECT 
+			DISTINCT m.order_id,m.order_time 
+		FROM
+			aurorascm.order_manage m
+		INNER JOIN
+			aurorascm.order_goods g
+		ON 
+			m.order_id = g.order_id
+		WHERE 
+			m.customer_id = #{t.customerID}
+		AND 
+			m.order_type = #{t.orderType}
+			<if test=" t.orderTime != null">
+				AND		m.order_time &gt;= #{t.orderTime}
+			</if>
+			<if test=" t.orderStates != null">
+				AND		m.order_state IN 
+							<foreach collection="t.orderStates" item="item" index="index" open="(" close=")" separator=",">
+           					 #{item}
+       						</foreach>
+			</if>
+			<if test=" t.searchWord != null">
+				AND	(	m.order_id = #{t.searchWord} 
+					OR	g.goods_name LIKE CONCAT('%', #{t.searchWord},'%')
+					)
+			</if>
+		ORDER BY
+			m.order_time DESC
+		LIMIT 
+			#{fromIndex}, #{pageSize}
+	</select>
+
+<!-- @author SSY 2018-05-23 查询订单集合的订单列表  -->
+	<select id="getOrderListByIDs" parameterType="List" resultMap="OrderManageResultMap">
+		SELECT 
+			*
+		FROM
+			aurorascm.order_manage m
+		INNER JOIN
+			aurorascm.order_goods g
+		ON 
+			m.order_id = g.order_id
+		WHERE 
+			m.order_id  IN 
+			<foreach collection="list" item="item" index="index" open="(" close=")" separator=",">
+      					 #{item.orderID}
+  				</foreach>
+  		ORDER BY
+			m.order_time DESC
+	</select>
+ 
+<!-- @author SSY 2018-05-23 查询符合条件的订单数量  -->
+	<select id="getOrderNum" parameterType="com.aurorascm.entity.OrderManage" resultType="int">
+		SELECT 
+			count(DISTINCT m.order_id) as num
+		FROM
+			aurorascm.order_manage m
+		INNER JOIN
+			aurorascm.order_goods g
+		ON 
+			m.order_id = g.order_id
+		WHERE 
+			m.customer_id = #{customerID}
+		AND 
+			m.order_type = #{orderType}
+			<if test=" orderTime != null">
+				AND		m.order_time &gt;= #{orderTime}
+			</if>
+			<if test=" orderStates != null">
+				AND		m.order_state IN 
+							<foreach collection="orderStates" item="item" index="index" open="(" close=")" separator=",">
+           					 #{item}
+       						</foreach>
+			</if>
+			<if test=" orderID != null">
+				AND	(	m.order_id = #{orderID} 
+					OR	g.goods_name LIKE CONCAT('%', #{orderID},'%')
+					)
+			</if>
+	</select>
+	
+	 <!-- @author SSY 2018-05-23 查询订单详情,包含订单下商品  -->
+		<select id="getOrder" parameterType="com.aurorascm.entity.OrderManage" resultMap="OrderManageResultMap">
+			SELECT 
+				*
+			FROM
+				aurorascm.order_goods g
+			INNER JOIN
+				aurorascm.order_manage m
+			ON 
+				g.order_id = m.order_id
+			WHERE 
+				m.order_id = #{orderID}
+			AND
+				m.customer_id = #{customerID}
+		</select>
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ <!-- ************************************************************************************************************* -->
+ <!-- *********************************************分割线*********************************************************** -->
+ <!-- ************************************************************************************************************* -->
+ 
+ 
+
+
+
+	<!-- 根据订单号获取订单包含商品 -->
+	<select id="getOrderGoodsByOID"  parameterType="String" resultType="pd">
+		SELECT 
+			g.*,m.*,d.weight
+		FROM
+			aurorascm.order_goods g
+		INNER JOIN
+			aurorascm.order_manage m
+		ON 
+			g.order_id = m.order_id
+		INNER JOIN
+			aurorascm.goods_details d
+		ON 
+			d.goods_id = g.goods_id
+		WHERE	
+			m.order_id = #{orderID}
+	</select>
+	
+		<!-- 根据订单号获取订单信息 -->
+	<select id="getOrderByOID"  parameterType="String" resultType="pd">
+		SELECT
+			order_id,
+			should_payment,
+			order_state
+		FROM
+			aurorascm.order_manage
+		WHERE	
+			order_id in
+				<foreach item="ArrayOrderID" index="index" collection="array" open="(" separator="," close=")">
+	        		#{ArrayOrderID}
+	        	</foreach>
+	</select>
+	
+	<!-- 购物车生成订单获取商品信息 -->
+	<select id="getOrderGoods"  parameterType="String" resultType="pd">
+		SELECT 
+			m.goods_id,
+			m.ship_type,
+			m.deposit,
+			m.cost_price,
+			m.goods_price1,
+			m.goods_price2,
+			m.rnum1,
+			m.rnum2,
+			m.rnum3,
+			m.weight,
+			m.postage_style,
+			s.buy_num,
+			d.goods_name,
+			d.goods_code,
+			d.main_map
+		FROM
+			aurorascm.shop_cart s
+		INNER JOIN
+			aurorascm.goods_manage m
+		ON 
+			s.goods_id = m.goods_id
+		INNER JOIN
+			aurorascm.goods_details d
+		ON
+			s.goods_id = d.goods_id
+		WHERE 
+			s.cart_id in
+				<foreach item="ArrayCartID" index="index" collection="array" open="(" separator="," close=")">
+	        		#{ArrayCartID}
+	        	</foreach>
+	</select>
+
+	<!-- 客户个人中心/我的订单  根据条件获取订单ID -->
+	<select id="getOrderIDByS3"  parameterType="page" resultType="pd">
+		SELECT 
+			DISTINCT  m.order_id,
+			m.order_time
+		FROM
+			aurorascm.order_goods g
+		INNER JOIN
+			aurorascm.order_manage m
+		ON 
+			g.order_id = m.order_id
+		WHERE m.customer_id = #{pd.customerID}
+			<if test=" pd.keyWord != null">
+				AND	(	m.order_id   LIKE CONCAT(#{pd.keyWord},'%')
+				OR      g.goods_name LIKE CONCAT('%', #{pd.keyWord},'%'))
+			</if>
+			<if test=" pd.orderStateList != null">
+				AND		m.order_state IN 
+							<foreach collection="pd.orderStateList" item="item" index="index" open="(" close=")" separator=",">
+           					 #{item}
+       						</foreach>
+			</if>
+			<if test=" pd.beginTimes != null">
+				AND		m.order_time &gt;= #{pd.beginTimes}
+			</if>
+			 
+		ORDER BY
+			m.order_time DESC
+		LIMIT 
+			#{fromIndex}, #{pageSize}
+	</select>
+ 
+ 	<!-- 客户个人中心/我的订单  根据条件获取订单数量 -->
+	<select id="getOrderIDNumByS3"  parameterType="page" resultType="int">
+		SELECT 
+			count(DISTINCT m.order_id) num
+		FROM
+			aurorascm.order_goods g
+		INNER JOIN
+			aurorascm.order_manage m
+		ON 
+			g.order_id = m.order_id
+		WHERE customer_id = #{pd.customerID}
+			<if test=" pd.keyWord != null">
+				AND		m.order_id   LIKE CONCAT(#{pd.keyWord},'%')
+				OR      g.goods_name LIKE CONCAT(CONCAT('%', #{pd.keyWord}),'%')
+			</if>
+			<if test=" pd.orderState != null">
+				AND		m.order_state IN
+						<foreach collection="pd.orderStateList" item="item" index="index" open="(" close=")" separator=",">
+           					 #{item}
+       						</foreach>
+			</if>
+			<if test=" pd.beginTimes != null">
+				AND		m.order_time &gt;= #{pd.beginTimes}
+			</if>
+	</select>
+	
+	<!-- 根据订单状态获取订单数量 -->
+	<select id="getONumByState"  parameterType="pd" resultType="int">
+		SELECT 
+			count(DISTINCT m.order_id) num
+		FROM
+			aurorascm.order_goods g
+		INNER JOIN
+			aurorascm.order_manage m
+		ON 
+			g.order_id = m.order_id
+		WHERE 
+			m.order_state IN 
+							<foreach collection="orderStateList" item="item" index="index" open="(" close=")" separator=",">
+           					 #{item}
+       						</foreach>
+		AND
+			m.customer_id = #{customerID}
+	</select>
+	
+	<!-- 根据订单状态获取订单数量 -->
+	<select id="getOrderState"  parameterType="pd" resultType="int">
+		SELECT 
+			order_state
+		FROM
+			aurorascm.order_manage
+		WHERE 
+			order_id = #{orderID}
+		AND
+			customer_id = #{customerID}
+	</select>
+	
+	<!-- 根据订单ID获取订单状态 -->
+	<select id="getOrderStateByOID"  parameterType="String" resultType="int">
+		SELECT 
+			order_state
+		FROM
+			aurorascm.order_manage
+		WHERE 
+			order_id = #{orderID}
+	</select>
+	 
+	 	<!-- 根据订单号和用户id获取订单中默认排序第一条物流信息; -->
+	<select id="getLogisticInfo"  parameterType="pd" resultType="pd">
+		SELECT 
+			g.logistics_company,
+			g.logistics_company_code,
+			g.logistics_number
+		FROM
+			aurorascm.order_goods g
+		INNER JOIN
+			aurorascm.order_manage m
+		ON 
+			g.order_id = m.order_id
+		WHERE	
+			m.order_id = #{orderID}
+		AND
+			m.customer_id = #{customerID}
+		AND 
+			g.logistics_type = 1
+		LIMIT 1
+	</select>
+	 
+	<!-- 根据订单号和用户id获取订单中所有的订单商品信息; -->
+	<select id="getOrderGoodsByOCID"  parameterType="pd" resultType="pd">
+		SELECT 
+			g.*,m.*,d.weight
+		FROM
+			aurorascm.order_goods g
+		INNER JOIN
+			aurorascm.order_manage m
+		ON 
+			g.order_id = m.order_id
+		INNER JOIN
+			aurorascm.goods_details d
+		ON 
+			g.goods_id = d.goods_id
+		WHERE	
+			m.order_id = #{orderID}
+		AND
+			m.customer_id = #{customerID}
+	</select> 
+	 
+	<!-- 根据订单号和用户id获取订单中所有的订单商品信息，包括物流信息; -->
+	<select id="getOrderInfoByOCID"  parameterType="pd" resultType="pd">
+		SELECT 
+			g.*,m.*,e.*,d.weight
+		FROM
+			aurorascm.order_goods g
+		INNER JOIN
+			aurorascm.order_manage m
+		ON 
+			g.order_id = m.order_id
+		INNER JOIN
+			aurorascm.goods_details d
+		ON 
+			g.goods_id = d.goods_id
+		LEFT JOIN
+			aurorascm.express_code e
+		ON 
+			g.logistics_company_code = e.express_code
+		WHERE	
+			m.order_id = #{orderID}
+		AND
+			m.customer_id = #{customerID}
+	</select> 
+	
+	<!-- 根据订单ID获取订单管理信息-->
+	<select id="getOrderMByOID"  parameterType="String" resultType="pd">
+		SELECT 
+			*
+		FROM
+			aurorascm.order_manage
+		WHERE 
+			order_id = #{orderID}
+	</select>
+	
+	<!-- 根据订单ID获取订单应付金额-->
+	<select id="getShouldPayByOID"  parameterType="String" resultType="BigDecimal">
+		SELECT 
+			should_payment
+		FROM
+			aurorascm.order_manage
+		WHERE 
+			order_id = #{orderID}
+	</select>
+	
+	<!-- 根据订单号获取订单商品，用于支付成功后更新订单库存 -->
+	<select id="getOrderGoodsForUStock"  parameterType="String" resultType="pd">
+		SELECT 
+			g.goods_id,
+			g.goods_num,
+			gm.goods_stock
+		FROM
+			aurorascm.order_goods g
+		INNER JOIN
+			aurorascm.order_manage m
+		ON 
+			g.order_id = m.order_id
+		INNER JOIN
+			aurorascm.goods_manage gm
+		ON 
+			g.goods_id = gm.goods_id
+		WHERE	
+			m.order_id = #{orderID}
+	</select> 
+
+</mapper>

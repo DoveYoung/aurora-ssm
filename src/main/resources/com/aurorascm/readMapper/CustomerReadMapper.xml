@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="CustomerReadMapper">
+
+ 	<resultMap type="Customer" id="customerResultMap">
+		<id column="customer_id" property="customerID"/>
+		<result column="customer_name" property="customerName"/>
+		<result column="customer_mobile" property="customerMobile"/>
+		<result column="customer_password" property="customerPassword"/>
+		<result column="customer_email" property="customerEmail"/>
+		<result column="customer_status" property="customerStatus"/>
+		<result column="customer_ip" property="customerIP"/>
+		<result column="salt" property="salt"/>
+	</resultMap>
+
+ 	<resultMap type="Customer" id="PersonalInfoResultMap">
+		<id column="customer_id" property="customerID"/>
+		<result column="customer_name" property="customerName"/>
+		<result column="register_time" property="registerTime"/>
+		<result column="sales_manager" property="salesManagerID"/>
+		<association property="salesManager" column="sales_manager" javaType="com.aurorascm.entity.SalesManager">
+			<id column="user_id" property="userID"/>
+			<result column="user_real_name" property="realName"/>
+			<result column="user_mobile" property="mobile"/>
+			<result column="user_email" property="email"/>
+			<result column="user_qq" property="qq"/>
+			<result column="user_wechat" property="weChat"/>
+		</association>
+	</resultMap>
+
+
+
+	<!-- 字段 -->
+	<sql id="Field">
+		customer_id,
+		customer_email,
+		customer_name,
+		customer_password,
+		customer_mobile,			
+		customer_sex,
+		customer_birthday,
+		customer_qq,
+		customer_we_chat,
+		customer_status,
+		customer_ip,
+		last_login_time,
+		register_time,
+		salt,
+		sms_push,
+		email_push,
+		care_brand
+	</sql>
+
+	<!-- 通过customerEmail获取用户数据 -->
+	<select id="getCustomerByEmail" parameterType="pd" resultMap="customerResultMap" >
+		SELECT 
+			<include refid="Field"></include>
+		FROM 
+			aurorascm.sys_customer
+		WHERE 
+			customer_email = #{customerEmail}
+	</select>
+	
+	<!-- 通过customerEmail获取用户数据 -->
+	<select id="getCustomerPdByEmail" parameterType="pd" resultType="pd" >
+		SELECT 
+			<include refid="Field"></include>
+		FROM 
+			aurorascm.sys_customer
+		WHERE 
+			customer_email = #{customerEmail}
+	</select>
+	
+	
+	
+	<!-- 判断用户名和密码 -->
+	<select id="getCustomerByEmailAndPwd" parameterType="pd" resultMap="customerResultMap">
+		SELECT
+			<include refid="Field"></include>
+		FROM
+			aurorascm.sys_customer
+		WHERE 
+			customer_email = #{customerEmail}
+		AND 
+			customer_password = #{customerPassword}
+	</select>
+	 
+	 <!-- 根据用户id查询用户关注的品牌 -->
+	 <select id="getAttentionBrand" parameterType="pd" resultType="String">
+		SELECT
+			care_brand
+		FROM
+			aurorascm.sys_customer
+		WHERE 
+			customer_id = #{customerID}
+	 </select>
+	 
+	  <!-- 根据品牌id查询用户关注的品牌 -->
+	 <select id="getBrandCaredNum" parameterType="pd" resultType="int">
+		SELECT
+			care_num num
+		FROM
+			aurorascm.brand
+		WHERE 
+			brand_id = #{brandID}
+	 </select>
+	 
+	 <!-- 根据客户id查询客户销售经理 -->
+	 <select id="getSalesManagerByCustomerID" parameterType="String" resultType="int">
+		SELECT
+			sales_manager
+		FROM
+			aurorascm.sys_customer
+		WHERE 
+			customer_id = #{customerID}
+	 </select>
+	 
+	  <!-- @author SSY 2017-12-29 根据用户id查询用户关注的品牌id -->
+	 <select id="getAttentionBrandID" parameterType="pd" resultType="String">
+		SELECT
+			care_brand
+		FROM
+			aurorascm.sys_customer
+		WHERE 
+			customer_id = #{customerID}
+	 </select>
+		
+	<!-- @author SSY 2018-05-19 查询用户购物车数量-->
+	 <select id="getCartNum" parameterType="String" resultType="int">
+		SELECT
+			count(cart_id) as num
+		FROM
+			aurorascm.shop_cart
+		WHERE 
+			customer_id = #{customerID}
+	 </select>
+	
+	<!-- @author SSY 2018-05-19 查询用户购物车数量-->
+	 <select id="getPersonalInfo" parameterType="String" resultMap="PersonalInfoResultMap" >
+		SELECT
+			c.customer_id,c.customer_name,c.register_time,c.sales_manager,
+			u.user_wechat,u.user_qq,u.user_email,u.user_mobile,u.user_real_name,u.user_id
+		FROM
+			aurorascm.sys_customer c
+		INNER JOIN 
+			aurora.sys_user u
+		ON 
+			c.sales_manager = u.user_id
+		WHERE 
+			customer_id = #{customerID}
+	 </select>
+	
+</mapper>

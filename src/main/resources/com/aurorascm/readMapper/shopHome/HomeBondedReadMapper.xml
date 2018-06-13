@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="HomeBondedReadMapper">
+	<resultMap type="com.aurorascm.entity.home.HomeGoods" id="HomeGoodsResultMap">
+		<id column="id" property="id"/>
+		<result column="goods_id" property="goodsID"/>
+		<result column="goods_new_name" property="goodsNewName"/>
+		<result column="location" property="location"/>
+		<result column="goods_price2" property="goodsPrice2"/>
+		<result column="home_map" property="homeMap"/>
+	</resultMap>
+ 
+	<!-- @author SSY 2018-05-07  查询  首页保税仓热卖商品 -->
+	<select id="getHomeBondedGoods"  resultMap="HomeGoodsResultMap" >
+		SELECT
+			b.*,m.goods_price2
+		FROM
+			aurorascm.home_bonded b
+		INNER JOIN
+			aurorascm.goods_manage m
+		ON 
+			b.goods_id = m.goods_id
+	</select> 
+ 
+	 
+	 
+</mapper>

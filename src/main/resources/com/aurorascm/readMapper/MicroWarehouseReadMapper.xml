@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="MicroWarehouseReadMapper">
+
+	<!-- 条件查询客户微仓商品 -->
+  	<select id="getCustomerMWGoods" parameterType="page"  resultType="pd">
+  		SELECT
+			m.*,
+			g.goods_stock
+		FROM
+			aurorascm.mw_goods m
+		LEFT JOIN
+			aurorascm.goods_manage g
+		ON
+			m.goods_id = g.goods_id
+		WHERE
+			m.customer_id = #{pd.customerID}
+			<if test=" pd.keyword != null">
+				AND m.goods_name LIKE CONCAT(CONCAT('%', #{pd.keyword}),'%')
+			</if>
+			<if test=" pd.beginTime != null">
+				AND m.join_mw_time &gt;= #{pd.beginTime}
+			</if>
+			<if test=" pd.endTime != null">
+				AND m.join_mw_time &lt;= #{pd.endTime}
+			</if>
+		ORDER BY 
+			m.join_mw_time DESC
+		LIMIT
+			#{fromIndex}, #{pageSize} 
+  	</select>
+  
+  	<!-- 客户个人中心/我的微仓  根据条件获取客户微仓商品数量 -->
+	<select id="getCustomerMWGNum"  parameterType="page" resultType="int">
+		SELECT 
+			count(m.mwg_id) num
+		FROM
+			aurorascm.mw_goods m
+		LEFT JOIN
+			aurorascm.goods_manage g
+		ON
+			m.goods_id = g.goods_id
+		WHERE
+			m.customer_id = #{pd.customerID}
+			<if test=" pd.keyword != null">
+				AND m.goods_name LIKE CONCAT(CONCAT('%', #{pd.keyword}),'%')
+			</if>
+			<if test=" pd.beginTime != null">
+				AND m.join_mw_time &gt;= #{pd.beginTime}
+			</if>
+			<if test=" pd.endTime != null">
+				AND m.join_mw_time &lt;= #{pd.endTime}
+			</if>
+	</select>
+	
+	<!-- 客户个人中心/我的微仓  根据mwgID获取客户微仓商品数量 -->
+	<select id="getGoodsNum"  parameterType="pd" resultType="int">
+		SELECT 
+			goods_num
+		FROM
+			aurorascm.mw_goods
+		WHERE
+			mwg_id = #{mwgID}
+	</select>
+	
+	<!-- BYG 2017.12.28  微仓货物 /删除商品 /判断客户微仓订单中是否包含此商品 -->
+	<select id="getOrderGoodsNum"  parameterType="pd" resultType="int">
+		SELECT 
+			count(g.mwg_id) num
+		FROM
+			aurorascm.mw_order_goods g
+		INNER JOIN
+			aurorascm.mw_order_manage m
+		ON 
+			g.mw_order_id = m.mw_order_id
+		WHERE 
+			g.mwg_id = #{mwgID}
+		AND
+			m.customer_id = #{customerID}
+	</select>
+	
+	<!-- 客户个人中心/我的微仓/微仓发货  根据customerID获取客户微仓商品 -->
+	<select id="getCustomerMWG"  parameterType="String" resultType="pd">
+		SELECT 
+			mwg_id,
+			goods_name
+		FROM
+			aurorascm.mw_goods
+		WHERE
+			customer_id = #{customerID}
+		AND
+			goods_num > 0
+
+	</select>
+	
+	<!-- 客户个人中心/我的微仓/微仓发货  根据mwgID获取客户微仓商品 用于CHECK-->
+	<select id="getGoodsByMwgIDFC"  parameterType="String" resultType="pd">
+		SELECT 
+			trade_type,
+			goods_price,
+			goods_weight,
+			postage_style,
+			goods_num
+		FROM
+			aurorascm.mw_goods
+		WHERE
+			mwg_id = #{mwgID}
+	</select>
+	
+	<!-- 客户个人中心/我的微仓/微仓发货  根据mwgID获取客户微仓商品 -->
+	<select id="getGoodsByMwgID"  parameterType="String" resultType="pd">
+		SELECT 
+			*
+		FROM
+			aurorascm.mw_goods
+		WHERE
+			mwg_id = #{mwgID}
+		AND
+			goods_num > 0
+	</select>
+	
+	<!-- 根据微仓订单ID获取订单包含的商品 -->
+	<select id="getGoodsByMWOrderID"  parameterType="String" resultType="pd">
+		SELECT 
+			m.*,
+			og.*,
+			mg.goods_id,
+			mg.goods_name,
+			mg.goods_price,
+			mg.goods_map
+		FROM
+			aurorascm.mw_order_manage m
+		INNER JOIN
+			aurorascm.mw_order_goods og
+		ON 
+			m.mw_order_id = og.mw_order_id
+		INNER JOIN
+			aurorascm.mw_goods mg
+		ON 
+			og.mwg_id = mg.mwg_id
+		WHERE	
+			m.mw_order_id = #{mwOrderID}
+	</select>
+
+	<!-- 获取客户微仓订单ID -->
+	<select id="getMWOrderID"  parameterType="page" resultType="pd">
+		SELECT 
+			DISTINCT  m.mw_order_id,
+			m.order_time
+		FROM
+			aurorascm.mw_order_goods g
+		INNER JOIN
+			aurorascm.mw_order_manage m
+		ON 
+			g.mw_order_id = m.mw_order_id
+		WHERE 
+			customer_id = #{pd.customerID}
+		ORDER BY
+			m.order_time DESC
+		LIMIT 
+			#{fromIndex}, #{pageSize}
+	</select>
+ 
+ 	<!-- 获取客户微仓订单数量 -->
+	<select id="getMWOrderIDNum"  parameterType="page" resultType="int">
+		SELECT 
+			count(DISTINCT m.mw_order_id) num
+		FROM
+			aurorascm.mw_order_goods g
+		INNER JOIN
+			aurorascm.mw_order_manage m
+		ON 
+			g.mw_order_id = m.mw_order_id
+		WHERE 
+			customer_id = #{pd.customerID}
+	</select>
+	
+	<!-- 获取多个微仓订单包含商品信息 -->
+	<select id="getMwOrderGoods"  parameterType="String" resultType="pd">
+		SELECT 
+			g.*
+		FROM
+			aurorascm.mw_order_goods g
+		INNER JOIN
+			aurorascm.mw_order_manage m
+		ON 
+			g.mw_order_id = m.mw_order_id
+		WHERE 
+			m.mw_order_id in
+				<foreach item="ArrayMWOrderID" index="index" collection="array" open="(" separator="," close=")">
+	        		#{ArrayMWOrderID}
+	        	</foreach>
+	</select>
+	
+	<!-- 根据支付订单ID获取多个微仓订单-->
+	<select id="getMwOrderMByPID"  parameterType="String" resultType="pd">
+		SELECT 
+			*
+		FROM
+			aurorascm.mw_order_manage 
+		WHERE 
+			out_trade_no = #{payOrderID}
+	</select>
+	
+	<!-- 获取多个微仓订单包含商品所有信息 -->
+	<select id="getMWOrderGDByPID"  parameterType="String" resultType="pd">
+		SELECT 
+			mg.goods_id,
+			mg.goods_name,
+			mg.goods_code,
+			mg.cost_price,
+			mg.goods_price,
+			mg.goods_map,
+			mg.deposit,
+			mg.pay_type,
+			mg.trade_type,
+			mg.goods_weight,
+			mg.postage_style,
+			m.customer_id,
+			og.send_num,
+			og.mw_order_id,
+			(IFNULL(TIMESTAMPDIFF(Hour, mg.join_mw_time, NOW()),0) + 1)/24 as turnoverDays 
+		FROM
+			aurorascm.mw_order_manage m
+		INNER JOIN
+			aurorascm.mw_order_goods og
+		ON 
+			m.mw_order_id = og.mw_order_id
+		INNER JOIN
+			aurorascm.mw_goods mg
+		ON 
+			og.mwg_id = mg.mwg_id
+		WHERE 
+			m.out_trade_no = #{payOrderID}
+	</select>
+	
+	<!-- 获取多个微仓订单包含商品所有信息,参数为list(二次订单不需要支付) -->
+	<select id="getMWOrderGDByOID"  parameterType="String" resultType="pd">
+		SELECT 
+			mg.goods_id,
+			mg.goods_name,
+			mg.goods_code,
+			mg.cost_price,
+			mg.goods_price,
+			mg.goods_map,
+			mg.deposit,
+			mg.pay_type,
+			mg.trade_type,
+			mg.goods_weight,
+			mg.postage_style,
+			og.send_num,
+			og.mw_order_id,
+			m.customer_id,
+			(IFNULL(TIMESTAMPDIFF(Hour, mg.join_mw_time, NOW()),0) + 1)/24 as turnoverDays
+		FROM
+			aurorascm.mw_order_manage m
+		INNER JOIN
+			aurorascm.mw_order_goods og
+		ON 
+			m.mw_order_id = og.mw_order_id
+		INNER JOIN
+			aurorascm.mw_goods mg
+		ON 
+			og.mwg_id = mg.mwg_id
+		WHERE 
+			og.mw_order_id in
+				<foreach item="ArrayMWOrderID" index="index" collection="array" open="(" separator="," close=")">
+	        		#{ArrayMWOrderID}
+	        	</foreach>
+	</select>
+	
+	<!-- 获取多个微仓订单 -->
+	<select id="getMwOrder"  parameterType="String" resultType="pd">
+		SELECT 
+			m.*
+		FROM
+			aurorascm.mw_order_goods g
+		INNER JOIN
+			aurorascm.mw_order_manage m
+		ON 
+			g.mw_order_id = m.mw_order_id
+		WHERE 
+			m.mw_order_id in
+				<foreach item="ArrayMWOrderID" index="index" collection="array" open="(" separator="," close=")">
+	        		#{ArrayMWOrderID}
+	        	</foreach>
+	</select>
+	
+	<!-- 获取多个微仓订单包含商品所有信息 -->
+	<select id="getMWOrderGD"  parameterType="String" resultType="pd">
+		SELECT 
+			mg.goods_id,
+			mg.goods_name,
+			mg.goods_code,
+			mg.goods_price,
+			mg.goods_map,
+			mg.deposit,
+			mg.pay_type,
+			mg.trade_type,
+			og.send_num,
+			og.mw_order_id
+		FROM
+			aurorascm.mw_order_manage m
+		INNER JOIN
+			aurorascm.mw_order_goods og
+		ON 
+			m.mw_order_id = og.mw_order_id
+		INNER JOIN
+			aurorascm.mw_goods mg
+		ON 
+			og.mwg_id = mg.mwg_id
+		WHERE 
+			m.mw_order_id in
+				<foreach item="ArrayMWOrderID" index="index" collection="array" open="(" separator="," close=")">
+	        		#{ArrayMWOrderID}
+	        	</foreach>
+	</select>
+	
+	
+	
+	<!-- 根据支付订单ID获取合并订单每个订单尾款之和-->
+	<select id="getMergeOrderSPByPayOID"  parameterType="String" resultType="BigDecimal">
+		SELECT 
+			SUM(g.final_pay) + SUM(m.postage) sp
+		FROM
+			aurorascm.mw_order_goods g
+		INNER JOIN
+			aurorascm.mw_order_manage m
+		ON 
+			g.mw_order_id = m.mw_order_id
+		WHERE 
+			m.out_trade_no = #{payOrderID}
+	</select>
+	
+	<!-- 根据订单ID获取订单包含商品尾款之和-->
+	<select id="getOrderFPByOID"  parameterType="String" resultType="BigDecimal">
+		SELECT 
+			SUM(g.final_pay) sp
+		FROM
+			aurorascm.mw_order_goods g
+		INNER JOIN
+			aurorascm.mw_order_manage m
+		ON 
+			g.mw_order_id = m.mw_order_id
+		WHERE 
+			m.mw_order_id = #{orderID}
+	</select>
+	
+	<!-- 根据支付订单ID获取包含的订单ID-->
+	<select id="getMwOrderIDByPayOID"  parameterType="String" resultType="String">
+		SELECT 
+			mw_order_id
+		FROM
+			aurorascm.mw_order_manage
+		WHERE 
+			out_trade_no = #{payOrderID}
+	</select>
+	
+	<!-- 获取单个微仓订单包含商品信息用于成本计算 -->
+	<select id="getMwOrderGoodsForCost"  parameterType="String" resultType="pd">
+		SELECT 
+			mg.cost_price,
+			mg.pay_type,
+			mg.deposit,
+			og.send_num
+		FROM
+			aurorascm.mw_order_goods og
+		INNER JOIN
+			aurorascm.mw_goods mg
+		ON 
+			og.mwg_id = mg.mwg_id
+		WHERE 
+			og.mw_order_id = #{orderID}
+	</select>
+	
+	<!-- 根据支付订单ID获取支付信息 -->
+	<select id="getMWOrderByPID"  parameterType="String" resultType="pd">	
+		SELECT 
+			mg.goods_name,
+			og.send_num,
+			m.consignee,
+			m.ship_address,
+			m.consignee_mobile
+		FROM
+			aurorascm.mw_order_manage m
+		INNER JOIN
+			aurorascm.mw_order_goods og
+		ON 
+			m.mw_order_id = og.mw_order_id
+		INNER JOIN
+			aurorascm.mw_goods mg
+		ON 
+			og.mwg_id = mg.mwg_id
+		WHERE 
+			m.out_trade_no = #{payOrderID}
+  	</select>		
+</mapper>

@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="BrandReadMapper">
+
+	<resultMap type="Brand" id="brandResultMap">
+		<id column="brand_id" property="brandID"/>
+		<result column="brand_name" property="brandName"/>
+		<result column="brand_map" property="brandMap"/>
+		<result column="advertise_map" property="advertiseMap"/>
+		<result column="brand_icon" property="brandIcon"/>
+		<result column="national_flag" property="nationalFlag"/>
+		<result column="country_ename" property="countryEName"/>
+		<result column="country_cname" property="countryCName"/>
+		<result column="sell_store_num" property="sellStoreNum"/>
+		<result column="care_num" property="careNum"/>
+		<result column="brand_describe1" property="brandDescribe1"/>
+		<result column="brand_describe2" property="brandDescribe2"/>
+	</resultMap>
+
+	<!-- 字段 -->
+	<sql id="Field">
+		brand_id,
+		brand_name,
+		brand_map,
+		advertise_map,
+		recommend_map,
+		national_flag,
+		country_ename,
+		country_cname,
+		sell_store_num,
+		care_num,
+		brand_describe1,
+		brand_describe2
+	</sql>
+
+	<!-- 通过关键词判断是否是搜品牌 -->
+	<select id="getBrandByKeyword" parameterType="pd" resultMap="brandResultMap" >
+		SELECT 
+			<include refid="Field"></include>
+		FROM 
+			aurorascm.brand
+		WHERE 1=1
+		<foreach collection="keyword1" item="item" index="index" >
+			AND 
+				brand_name LIKE CONCAT ('%',#{item},'%')
+			</foreach>
+		ORDER BY
+			brand_name
+		LIMIT 1
+	</select>
+	
+	<!-- 通过品牌ID搜品牌 -->
+	<select id="getBrandByID" parameterType="String" resultMap="brandResultMap" >
+		SELECT 
+			<include refid="Field"></include>
+		FROM 
+			aurorascm.brand
+		WHERE
+			brand_id = #{brandID}
+	</select>
+	
+		
+	<!-- 通过品牌ID获取品牌基本数据 -->
+	<select id="getBrandPdByID" parameterType="String" resultType="pd" >
+		SELECT 
+			<include refid="Field"></include>
+		FROM 
+			aurorascm.brand
+		WHERE
+			brand_id = #{brandID}
+	</select>
+	
+	<!-- 通过品牌ID获取品牌类目名 -->
+	<select id="getCategoryIDByBrandID" parameterType="pd" resultType="pd" >
+		SELECT 
+			c.brand_category_id,
+			b.brand_id,
+			c.brand_category_name
+		FROM 
+			aurorascm.brand_category c
+		INNER JOIN
+			aurorascm.brand b
+		ON 
+			b.brand_category_id = c.brand_category_id
+		WHERE 
+			b.brand_id = #{brandID}
+	</select>
+	
+	<!-- 根据品牌类目名得到5个类似品牌 -->
+	<select id="getBrandByCategory" parameterType="java.util.List" resultType="pd">
+		SELECT 
+			b.brand_id,
+			b.brand_name,
+			b.brand_map,
+			b.advertise_map,
+			b.recommend_map,
+			recommend_map,
+			b.brand_icon,
+			b.national_flag,
+			b.country_ename,
+			b.country_cname,
+			b.care_num,
+			b.brand_describe1,
+			b.brand_describe2
+		FROM 
+			aurorascm.brand b
+		LEFT JOIN
+			aurorascm.brand_category c
+		ON 
+			b.brand_category_id = c.brand_category_id
+		WHERE
+			c.brand_category_id in
+				<foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+                  #{item.brand_category_id}
+             	</foreach>
+            AND b.brand_id not in
+            	<foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+                  #{item.brand_id}
+             	</foreach>
+        ORDER BY RAND()
+		LIMIT 0, 5
+	</select>
+	
+	<!-- 根据商品二级类目名得到5个类似品牌 -->
+	<select id="getBrandByCategory2ID" parameterType="java.util.List" resultType="pd" >
+		SELECT 
+			DISTINCT(b.brand_id),
+			b.brand_name,
+			b.brand_map,
+			b.advertise_map,
+			b.recommend_map,
+			b.brand_icon,
+			b.national_flag,
+			b.country_ename,
+			b.country_cname,
+			b.care_num,
+			b.brand_describe1,
+			b.brand_describe2
+		FROM 
+			aurorascm.brand b
+		LEFT JOIN
+			aurorascm.goods_common gc
+		ON 
+			b.brand_id = gc.brand_id
+		WHERE
+			gc.category2_id in
+				<foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+                  #{item}
+             	</foreach>
+		<!--ORDER BY b.care_num DESC 11.14-->
+		ORDER BY RAND()
+		LIMIT 0, 5
+	</select>
+		
+		<!-- 查询品牌关注数量; --> 
+		<select id="getBrandCaredNum" parameterType="pd"  resultType="int"  >
+		SELECT 
+			 care_num num
+		FROM 
+			aurorascm.brand b
+		WHERE 
+			brand_id = #{brandID}
+	</select>
+	
+	<!-- BYG 2017.12.21 根据品牌ID集合得到5个类似品牌 -->
+	<select id="getBrandCategory" parameterType="java.util.List" resultType="pd" >
+		SELECT 
+			brand_id,
+			brand_name,
+			recommend_map,
+			care_num,
+			brand_describe1
+		FROM 
+			aurorascm.brand
+		WHERE 
+			brand_category_id IN
+			(
+				SELECT 
+					DISTINCT(brand_category_id)
+				FROM 
+					aurorascm.brand
+				WHERE 
+					brand_id IN
+		            	<foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+		                  #{item}
+		             	</foreach>
+			)
+		LIMIT 5
+	</select>
+		
+</mapper>

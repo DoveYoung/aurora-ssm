@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ShopCartReadMapper">
+
+	<resultMap type="CartGoods" id="cartGoodsResultMap">
+		<id column="cart_id" property="cartID"/>
+		<result column="customer_id" property="customerID"/>
+		<result column="goods_id" property="goodsID"/>
+		<result column="category2_id" property="category2ID"/>
+		<result column="buy_num" property="buyNum"/>
+		<result column="payment_type" property="paymentType"/>
+		<association property="cartGM" column="manage_id" javaType="GoodsManage">
+			<id column="manage_id" property="manageID"/>
+			<result column="cost_price" property="costPrice"/>
+			<result column="goods_price1" property="goodsPrice1"/>
+			<result column="goods_price2" property="goodsPrice2"/>
+			<result column="rnum1" property="rnum1"/>
+			<result column="rnum2" property="rnum2"/>
+			<result column="rnum3" property="rnum3"/>
+			<result column="weight" property="weight"/>
+			<result column="ship_type" property="shipType"/>
+			<result column="postage_style" property="postageStyle"/>
+			<result column="deposit" property="deposit"/>
+			<result column="goods_stock" property="goodsStock"/>
+			<result column="goods_state" property="goodsState"/>
+			<result column="exw" property="exw"/>
+		</association>
+		<association property="cartGC" column="common_id" javaType="GoodsCommon">
+			<id column="common_id" property="commonID"/>
+			<result column="goods_name" property="goodsName"/>
+			<result column="main_map" property="mainMap"/>
+			<result column="category2_id" property="category2ID"/>
+		</association>
+	</resultMap>
+	
+	<resultMap type="CartGoods" id="cGoodsResultMap">
+		<id column="cart_id" property="cartID"/>
+		<result column="customer_id" property="customerID"/>
+		<result column="goods_id" property="goodsID"/>
+		<result column="category2_id" property="category2ID"/>
+		<result column="buy_num" property="buyNum"/>
+		<result column="payment_type" property="paymentType"/>
+	</resultMap>
+
+	<!-- 根据用户ID/贸易方式/支付方式获取购物车中某贸易方式下的商品 -->
+	<select id="getCartGoods" parameterType="pd" resultMap="cartGoodsResultMap" >
+		SELECT
+			s.cart_id,
+			s.goods_id,
+			s.buy_num,
+			m.goods_price1,
+			m.goods_price2,
+			m.rnum1,
+			m.rnum2,
+			m.rnum3,
+			m.weight,
+			m.ship_type,
+			m.postage_style,
+			m.goods_stock,
+			m.deposit,
+			m.cost_price,
+			m.goods_state,
+			m.exw,
+			c.category2_id,
+			c.main_map,
+			c.goods_name
+		FROM 
+			aurorascm.shop_cart s
+		LEFT JOIN	
+			aurorascm.goods_manage m
+		ON
+			s.goods_id = m.goods_id
+		LEFT JOIN
+			aurorascm.goods_common c
+		ON
+			s.goods_id = c.goods_id
+		WHERE
+			s.customer_id = #{customerID}
+		AND
+			s.ship_type = #{shipType}
+		AND
+			s.payment_type = #{paymentType}
+	</select>
+	
+	<!-- 根据cartID获取购物车单个商品信息 -->
+	<select id="getCartUG" parameterType="pd" resultMap="cartGoodsResultMap" >
+		SELECT
+			s.cart_id,
+			s.goods_id,
+			s.buy_num,
+			m.goods_price1,
+			m.goods_price2,
+			m.rnum1,
+			m.rnum2,
+			m.rnum3,
+			m.weight,
+			m.ship_type,
+			m.postage_style,
+			m.goods_stock,
+			m.deposit,
+			m.cost_price,
+			m.exw,
+			c.category2_id,
+			c.main_map,
+			c.goods_name
+		FROM 
+			aurorascm.shop_cart s
+		LEFT JOIN	
+			aurorascm.goods_manage m
+		ON
+			s.goods_id = m.goods_id
+		LEFT JOIN
+			aurorascm.goods_common c
+		ON
+			s.goods_id = c.goods_id
+		WHERE
+			s.cart_id = #{cartID}
+	</select>
+	
+	<!-- 根据CartID[]获取购物车【全款】购买结算商品 -->
+	<select id="getCartFSettleG" parameterType="int" resultMap="cartGoodsResultMap" >
+		SELECT
+			s.cart_id,
+			s.goods_id,
+			s.buy_num,
+			m.cost_price,
+			m.goods_price1,
+			m.goods_price2,
+			m.rnum1,
+			m.rnum2,
+			m.rnum3,
+			m.weight,
+			m.ship_type,
+			m.postage_style,
+			m.goods_stock,
+			m.cost_price,
+			m.exw,
+			c.category2_id,
+			c.main_map,
+			c.goods_name
+		FROM 
+			aurorascm.shop_cart s
+		LEFT JOIN	
+			aurorascm.goods_manage m
+		ON
+			s.goods_id = m.goods_id
+		LEFT JOIN
+			aurorascm.goods_common c
+		ON
+			s.goods_id = c.goods_id
+		WHERE
+			s.payment_type = 1
+		AND
+			cart_id in
+  			 <foreach item="cartID" index="index" collection="array" open="(" separator="," close=")">
+                  #{cartID}
+             </foreach>
+	</select>
+	
+	<!-- 根据CartID[]获取购物车【定金】购买结算商品 -->
+	<select id="getCartDSettleG" parameterType="int" resultMap="cartGoodsResultMap" >
+		SELECT
+			s.cart_id,
+			s.goods_id,
+			s.buy_num,
+			m.cost_price,
+			m.goods_price1,
+			m.goods_price2,
+			m.rnum1,
+			m.rnum2,
+			m.rnum3,
+			m.ship_type,
+			m.deposit,
+			m.goods_stock,
+			m.cost_price,
+			m.exw,
+			c.category2_id,
+			c.main_map,
+			c.goods_name
+		FROM 
+			aurorascm.shop_cart s
+		LEFT JOIN	
+			aurorascm.goods_manage m
+		ON
+			s.goods_id = m.goods_id
+		LEFT JOIN
+			aurorascm.goods_common c
+		ON
+			s.goods_id = c.goods_id
+		WHERE
+			s.payment_type = 2
+		AND
+			cart_id in
+  			 <foreach item="cartID" index="index" collection="array" open="(" separator="," close=")">
+                  #{cartID}
+             </foreach>
+	</select>
+		
+	<!-- 根据用户ID和商品ID获取购物车商品-->
+	<select id="findCGoods" parameterType="pd" resultMap="cGoodsResultMap" >
+		SELECT 
+			*
+		FROM 
+			aurorascm.shop_cart
+		WHERE 
+			customer_id = #{customerID}
+		AND 
+			goods_id = #{goodsID}
+		AND
+			payment_type = #{paymentType}
+		AND
+			ship_type = #{shipType}
+	</select>
+	
+	
+	<!-- 根据商品id获取商品的goods_manage信息; -->
+	<select id="findGoodsPrice" parameterType="String" resultType="pd" >
+		SELECT 
+			rnum3,rnum2,rnum1,goods_price1,goods_price2,exw,goods_stock
+		FROM 
+			aurorascm.goods_manage
+		WHERE 
+			goods_id = #{goodsID}
+	</select>
+
+	<!-- 根据商品id查询商品库存goodsStock -->
+	<select id="getGoodsStock" parameterType="String" resultType="int" >
+		SELECT 
+			 goods_stock num
+		FROM 
+			aurorascm.goods_manage
+		WHERE 
+			goods_id = #{goodsID}
+	</select>
+
+
+
+
+</mapper>

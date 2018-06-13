@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="HomeTimedActivityReadMapper">
+	<resultMap type="com.aurorascm.entity.home.TimedActivity" id="timedActivityMap">
+		<id column="activity_id" property="activityID"/>
+		<result column="activity_state" property="activityState"/>
+		<result column="begin_time" property="beginTime"/>
+		<result column="end_time" property="endTime"/>
+		<result column="creator" property="creator"/>
+		<result column="create_time" property="createTime"/>
+		<result column="update_time" property="updateTime"/>
+		<result column="updator" property="updator"/>
+		<collection property="timedGoodsList" column="activity_id" ofType="com.aurorascm.entity.home.TimedGoods">
+			<id column="id" property="id"/>
+			<result column="activity_id" property="activityID"/>
+			<result column="goods_id" property="goodsID"/>
+			<result column="goods_new_name" property="goodsNewName"/>
+			<result column="original_price1" property="originalPrice1"/>
+			<result column="original_price2" property="originalPrice2"/>
+			<result column="discount_price" property="discountPrice"/>
+			<result column="available_sell_num" property="availableSellNum"/>
+			<result column="sold_num" property="soldNum"/>
+			<result column="activity_goods_state" property="activityGoodsState"/>
+			<result column="main_map" property="homeMap"/>
+		</collection>
+	</resultMap>
+	
+	
+	 	<!-- @author SSY 2018-05-05 查询有效中的所有活动 -->
+	<select id="getTimedActivityList"   resultMap="timedActivityMap">
+		SELECT 
+			a.*,g.*,c.main_map
+		FROM
+			aurorascm.home_timed_activity a
+		INNER JOIN
+			aurorascm.home_timed_goods g
+		ON 
+			a.activity_id = g.activity_id
+		INNER JOIN
+			aurorascm.goods_common c
+		ON 
+			g.goods_id = c.goods_id
+		WHERE
+			a.activity_state = 2
+		LIMIT 0,4
+	</select>
+	
+	 <!-- @author SSY 2018-05-05 查询最近一次失效的活动 -->
+	<select id="getLastTimedActivityList"   resultMap="timedActivityMap">
+		SELECT 
+			a.*,g.*,c.main_map
+		FROM
+			aurorascm.home_timed_activity a
+		INNER JOIN
+			aurorascm.home_timed_goods g
+		ON 
+			a.activity_id = g.activity_id
+		INNER JOIN
+			aurorascm.goods_common c
+		ON 
+			g.goods_id = c.goods_id
+		WHERE
+			a.activity_state = 3
+		ORDER BY a.end_time DESC
+		LIMIT 0,4
+	</select>
+	
+	
+	
+	
+</mapper>

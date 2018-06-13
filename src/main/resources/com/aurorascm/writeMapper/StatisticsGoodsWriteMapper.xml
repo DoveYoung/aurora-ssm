@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="StatisticsGoodsWriteMapper">
+
+<!-- 统计商品各时段点击次数,按照天累计-->
+<insert id="addGoodsDayClickNum" parameterType="pd"> 
+        <selectKey keyProperty="count" resultType="int" order="BEFORE"> 
+            SELECT 
+            	count(goods_id) num
+            FROM 
+            	aurorascm.s_goods_click
+            WHERE 
+            	goods_id = #{goodsID}
+            AND
+            	month = '13'
+            AND
+            	day = #{day}
+           
+        </selectKey> 
+        <!-- 如果大于0则 +1 --> 
+        <if test="count>0"> 
+            UPDATE 
+           		aurorascm.s_goods_click
+            SET 
+           	 	${hour} = ${hour} + 1,
+           	 	total_click_num = total_click_num + 1
+            WHERE 
+            	goods_id = #{goodsID}
+            AND
+          		month = '13'
+      		AND
+      			day = #{day}
+		</if> 
+
+        <!-- 如果等于0则新增 ,该商品是当日第一次被访问 month=13表示是天为单位的点击数据--> 
+        <if test="count==0">
+			INSERT INTO
+				aurorascm.s_goods_click
+			(
+				goods_id,month,day,${hour},total_click_num
+			) VALUES (
+			    #{goodsID},'13', #{day}, 1,1
+ 			) 
+        </if> 
+    </insert>
+
+<!-- 统计商品各时段点击次数,按照月累计-->
+<insert id="addGoodsMonthClickNum" parameterType="pd"> 
+        <selectKey keyProperty="count" resultType="int" order="BEFORE"> 
+            SELECT 
+            	count(goods_id) num
+            FROM 
+            	aurorascm.s_goods_click
+            WHERE 
+            	goods_id = #{goodsID}
+            AND
+            	month = #{month}
+           
+        </selectKey> 
+        <!-- 如果大于0则 +1 --> 
+        <if test="count>0"> 
+            UPDATE 
+           		aurorascm.s_goods_click
+            SET 
+           	 	${hour} = ${hour} + 1,
+           	 	total_click_num = total_click_num + 1
+            WHERE 
+            	goods_id = #{goodsID}
+            AND
+          		month = #{month}
+		</if> 
+
+        <!-- 如果等于0则新增 ,该商品是当月第一次被访问--> 
+        <if test="count==0">
+			INSERT INTO
+				aurorascm.s_goods_click
+			(
+				goods_id,month,day,${hour},total_click_num
+			) VALUES (
+			    #{goodsID}, #{month}, '', 1,1
+ 			)  
+        </if> 
+    </insert>
+
+ 
+ 
+</mapper>

@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="StatisticsWebsiteWriteMapper">
+  
+ <!-- 更新当日访客数量时段分布 -->
+	<insert id="saveVisitorDistribution" parameterType="map"> 
+		<selectKey keyProperty="count" resultType="int" order="BEFORE"> 
+		SELECT 
+			count(date) num
+		FROM 
+        	aurorascm.s_uv
+		WHERE 
+        	date = #{date}
+           
+        </selectKey> 
+        <!-- 如果大于0则 ,已经有今天的数据表记录了,执行累计 --> 
+        <if test="count>0"> 
+		UPDATE 
+        	aurorascm.s_uv
+        SET
+        	day_num = day_num + 1,
+        	${hour} = ${hour} + 1
+		WHERE 
+        	date = #{date}
+		</if> 
+
+        <!-- 如果等于0则  需要新增今天的访客分布记录,执行新增,--> 
+        <if test="count==0">
+			INSERT INTO
+				aurorascm.s_uv
+			(
+				day_num,date,${hour}
+			) VALUES (
+			    1,#{date},1
+ 			) 
+        </if> 
+    </insert>
+   
+	<!-- 更新本地访客ip地址库-->
+	<insert id="saveVisitorIPInfo" parameterType="map"> 
+        <selectKey keyProperty="count" resultType="int" order="BEFORE"> 
+            SELECT 
+            	count(ip) num
+            FROM 
+            	aurorascm.s_ip
+            WHERE 
+            	ip = #{ip}
+        </selectKey> 
+        <!-- 如果大于0则 更新为今天已经访问,并累计访问次数, --> 
+        <if test="count>0"> 
+            UPDATE 
+           		aurorascm.s_ip
+            SET 
+           	 	day_visit = 2,
+           	 	total_num = total_num + 1,
+           	 	last_visit_time = #{time}
+            WHERE 
+            	ip = #{ip}
+		</if> 
+
+        <!-- 如果等于0则新增 ,并保存该ip地址的城市id,省份id,国家,其他国家城市省份编码为-1,名称为空--> 
+        <if test="count==0">
+			INSERT INTO
+				aurorascm.s_ip
+			(
+				ip,day_visit,total_num,city_id,city,area_id,area,country_id,country,last_visit_time
+			) VALUES (
+			    #{ip},2,1,#{city_id},#{city},#{area_id},#{area},#{country_id},#{country},#{time}
+ 			) 
+        </if> 
+    </insert>
+    
+    
+    
+    <!-- 更新首页热力图统计-->
+	<update id="updateModuleClickTimes" parameterType="String"> 
+            UPDATE 
+           		aurorascm.s_module_click
+            SET 
+           	 	click_num = click_num + 1
+            WHERE 
+            	module_num = #{module}
+    </update>
+    
+    
+    
+      <!-- 更新关键字搜索-->
+	<insert id="saveStatisticKeyWord" parameterType="pd"> 
+		<selectKey keyProperty="count" resultType="int" order="BEFORE"> 
+            SELECT 
+            	count(search_keyword) num
+            FROM 
+            	aurorascm.s_search_keyword 
+            WHERE 
+            	search_keyword = #{keyWord}
+        </selectKey> 
+        <!-- 如果大于0则 ,累计搜索次数, --> 
+        <if test="count>0"> 
+            UPDATE 
+           		aurorascm.s_search_keyword 
+            SET 
+           	 	total_num = total_num + 1,
+           	 	${monthNum} = ${monthNum} +1
+            WHERE 
+            	search_keyword = #{keyWord}
+		</if> 
+        <!-- 如果等于0则新增 --> 
+        <if test="count==0">
+			INSERT INTO
+				aurorascm.s_search_keyword 
+			(
+				search_keyword,total_num,${monthNum}
+			) VALUES (
+			    #{keyWord},1,1
+ 			) 
+        </if> 
+    </insert>
+    
+    
+          <!-- 更新PV-->
+	<insert id="addPV" parameterType="pd"> 
+        <selectKey keyProperty="count" resultType="int" order="BEFORE"> 
+            SELECT 
+            	count(date) num
+            FROM 
+            	aurorascm.s_pv
+            WHERE 
+            	date = #{date}
+        </selectKey> 
+        <!-- 如果大于0则 ,累计当天PV, --> 
+        <if test="count>0"> 
+            UPDATE 
+           		aurorascm.s_pv
+            SET 
+           	 	day_num = day_num + 1,
+           	 	${hour} = ${hour} +1
+            WHERE 
+            	date = #{date}
+		</if> 
+        <!-- 如果等于0则新增 --> 
+        <if test="count==0">
+			INSERT INTO
+				aurorascm.s_pv
+			(
+				date,day_num,${hour}
+			) VALUES (
+			    #{date},1,1
+ 			) 
+        </if> 
+    </insert>
+    
+    <!-- 推广源访问次数统计 -->
+	<update id="updateSpreadVisitNum" parameterType="pd" >
+		UPDATE 
+			aurorascm.s_spread
+		SET
+			visit_num = visit_num + 1
+		WHERE 
+			spread_id = #{spread}
+	</update>
+    
+ 
+</mapper>

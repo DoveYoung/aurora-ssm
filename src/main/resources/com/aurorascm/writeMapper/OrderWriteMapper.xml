@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="OrderWriteMapper">
+	
+	
+	
+	
+	<!-- @author SSY 2018-05-23     更新订单状态 -->
+	<update id="updateOrderState" parameterType="com.aurorascm.entity.OrderManage" >
+		UPDATE 
+			aurorascm.order_manage
+		SET
+		<if test="finishTime!=null">
+			finish_time = #{finishTime},
+			finish_operator = #{finishOperator},
+		</if>
+		<if test="cancelTime!=null">
+			cancel_order_time = #{cancelTime},
+			cancel_order_operator = #{cancelOperator},
+		</if>
+			order_state = #{orderState}
+		WHERE 
+			order_id = #{orderID}
+		AND 
+			customer_id = #{customerID}
+	</update>
+	
+	
+	
+	<!-- ****************************************************************************************************************** -->
+	<!-- ******************************************************分割线******************************************************* -->
+	<!-- ****************************************************************************************************************** -->
+	
+	
+	
+	
+	
+	<!-- 更新订单状态 注释时间2018-05-23 修改订单中心 -->
+	<!--  <update id="updateOrderState" parameterType="pd" >
+		UPDATE 
+			aurorascm.order_manage
+		SET
+		<if test="finishTime!=null">
+		finish_time = #{finishTime},
+		finish_operator = #{finishOperator},
+		</if>
+		<if test="cancelTime!=null">
+		cancel_order_time = #{cancelTime},
+		cancel_order_operator = #{cancelOperator},
+		</if>
+			order_state = #{orderState}
+		WHERE 
+			order_id = #{orderID}
+	</update> -->
+	
+	<!-- 根据订单ID更新单个订单状态和实付金额 -->
+	<update id="updateOrderPayInfo" parameterType="pd" >
+		UPDATE 
+			aurorascm.order_manage
+		SET
+			pay_money = #{payMoney},
+			order_state = #{orderState},
+			pay_time = #{payTime},
+			pay_path = #{payPath},
+			trade_no = #{tradeNo},
+			out_trade_no = #{orderID}
+		WHERE 
+			order_id = #{orderID}
+	</update>
+
+	<!-- 添加微仓单订单信息到表order_manage -->
+	<insert id="addMWOrder2OM" parameterType="pd">
+		INSERT INTO aurorascm.order_manage (
+			order_id,
+			out_trade_no,
+			trade_no,
+			pay_path,
+			order_level,
+			customer_id,
+			customer_name,
+			consignee,
+			ship_address,
+			consignee_mobile,
+			consignee_id_card,
+			order_type,
+			pay_type,
+			cost,
+			pay_money,
+			should_payment,
+			total_money,
+			postage,
+			order_time,
+			pay_time,
+			order_state,
+			customer_remark,
+			sales_manager
+		)VALUES	(
+			#{orderID},
+			#{outTradeNo},
+			#{tradeNo},
+			#{payPath},
+			#{orderLevel},
+			#{customerID},
+			#{customerName},
+			#{consignee},
+			#{shipAddress},
+			#{consigneeMobile},
+			#{consigneeIDCard},
+			#{orderType},
+			#{payType},
+			#{cost},
+			#{payMoney},
+			#{shouldPayment},
+			#{totalMoney},
+			#{postage},
+			#{orderTime},
+			#{payTime},
+			#{orderState},
+			#{customerRemark},
+			#{salesManager}
+		)
+	</insert>
+	
+	<!-- 添加单订单信息到表order_manage -->
+	<insert id="addOrder2OM" parameterType="pd">
+		INSERT INTO aurorascm.order_manage (
+			order_id,
+			order_level,
+			customer_id,
+			customer_name,
+			consignee,
+			ship_address,
+			consignee_mobile,
+			consignee_id_card,
+			order_type,
+			pay_type,
+			cost,
+			pay_money,
+			should_payment,
+			total_money,
+			postage,
+			order_time,
+			pay_time,
+			order_state,
+			customer_remark,
+			sales_manager
+		)VALUES	(
+			#{orderID},
+			#{orderLevel},
+			#{customerID},
+			#{customerName},
+			#{consignee},
+			#{shipAddress},
+			#{consigneeMobile},
+			#{consigneeIDCard},
+			#{orderType},
+			#{payType},
+			#{cost},
+			#{payMoney},
+			#{shouldPayment},
+			#{totalMoney},
+			#{postage},
+			#{orderTime},
+			#{payTime},
+			#{orderState},
+			#{customerRemark},
+			#{salesManager}
+		)
+	</insert>
+	
+	<!-- 添加单商品订单信息到表order_goods -->
+	<insert id="addUGOrder2OG" parameterType="pd">
+		INSERT INTO aurorascm.order_goods (
+			order_id,
+			goods_id,
+			goods_name,
+			goods_code,
+			goods_num,
+			cost_price,
+			goods_price,
+			goods_weight,
+			goods_map,
+			deposit,
+			pay_type,
+			trade_type,
+			postage_style
+		)VALUES	(
+			#{orderID},
+			#{goodsID},
+			#{goodsName},
+			#{goodsCode},
+			#{goodsNum},
+			#{costPrice},
+			#{goodsPrice},
+			#{uWeight},
+			#{goodsMap},
+			#{deposit},
+			#{payType},
+			#{tradeType},
+			#{postageStyle}
+		)
+	</insert>
+	
+	<!-- 添加多个商品订单信息到表order_goods -->
+	<insert id="addSGOrder2OG" parameterType="pd">
+		INSERT INTO aurorascm.order_goods (
+			order_id,
+			pay_type,
+			goods_id,
+			goods_name,
+			goods_code,
+			goods_num,
+			cost_price,
+			goods_price,
+			goods_weight,
+			goods_map,
+			deposit,
+			trade_type,
+			postage_style
+		)VALUES	
+			<foreach collection="cartOrderGoods" item="item" index="index" separator="," >
+				(
+				#{orderID},
+				#{payType},
+				#{item.goodsID},
+				#{item.goodsName},
+				#{item.goodsCode},
+				#{item.goodsNum},
+				#{item.costPrice},
+				#{item.goodsPrice},
+				#{item.goodsWeight},
+				#{item.goodsMap},
+				#{item.deposit},
+				#{item.tradeType},
+				#{item.postageStyle}
+				)
+			</foreach> 
+	</insert>
+
+
+</mapper>

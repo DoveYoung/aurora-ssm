@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="HomeReadMapper">
+
+	
+	<resultMap type="com.aurorascm.entity.home.Category" id="CategoryResultMap">
+		<id column="category_id" property="categoryID"/>
+		<result column="category_name" property="categoryName"/>
+		<result column="category_level" property="categoryLevel"/>
+		<result column="category_parent_id" property="categoryParentID"/>
+		<result column="location_sort" property="locationSort"/>
+		<result column="red" property="red"/>
+	</resultMap>
+		
+	<!-- @author BYG 2018-04-27 类目   根据级别获取相应类目列表接口-->
+	<select id="getCategoryListByLevel" parameterType="int" resultMap="CategoryResultMap">
+		SELECT 	category_id,category_name,category_level,category_parent_id,location_sort,red
+		FROM	aurorascm.home_category
+		WHERE	category_level = #{categoryLevel}
+		ORDER BY	location_sort ASC
+	</select>
+	
+	<!-- @author BYG 2018-04-27  类目  根据父级ID获取相应类目列表接口-->
+	<select id="getCategoryListByPID" parameterType="int" resultMap="CategoryResultMap">
+		SELECT 	category_id,category_name,category_level,category_parent_id,location_sort,red
+		FROM	aurorascm.home_category
+		WHERE	category_parent_id = #{categoryParentID}
+		ORDER BY	location_sort ASC
+	</select>
+	
+	<!-- @author BYG 2018-5-9 热卖商品   根据父级ID获取相应类目列表接口-->
+	<select id="getHotSellTitle" resultType="pd">
+		SELECT 		DISTINCT(title_id),title_name
+		FROM		aurorascm.home_hot_sell2
+		ORDER BY	title_id ASC
+	</select>
+	
+	<!-- @author BYG 2018-5-9 热卖商品  根据父级ID获取相应类目列表接口-->
+	<select id="getHotSellGoodsByTitle" parameterType="Object" resultType="pd">
+		SELECT 		h.goods_id,h.goods_show_name,h.goods_show_map,m.goods_price2,(m.goods_sales+m.fake_sales) sales
+		FROM		aurorascm.home_hot_sell2 h
+		INNER JOIN  aurorascm.goods_manage m
+		ON			h.goods_id = m.goods_id
+		WHERE		h.title_id = #{titleID}
+		ORDER BY	h.seat ASC
+	</select>
+	
+	<!-- @author BYG 2018-5-9  大货集散   获取类目ID和类目名称-->
+	<select id="getLargeCargoCategory" resultType="pd">
+		SELECT 		DISTINCT(h.category_id),g.category_name
+		FROM		aurorascm.home_large_cargo h
+		INNER JOIN  aurorascm.goods_category g
+		ON			h.category_id = g.category_id
+		ORDER BY	h.category_id ASC
+	</select>
+	
+	<!-- @author BYG 2018-5-9  大货集散  根据类目ID获取相应类目下商品-->
+	<select id="getLargeCargoGoods" parameterType="Object" resultType="pd">
+		SELECT 		goods_id,goods_show_name,price,min_num,norm,period,delivery_address,hot,supplier
+		FROM		aurorascm.home_large_cargo
+		WHERE		category_id = #{categoryID}
+		ORDER BY	seat ASC
+	</select>
+	
+	<!-- @author BYG 2018-5-9  海外直邮  获取标题ID和标题名称-->
+	<select id="getDirectPostTitle" resultType="pd">
+		SELECT 		DISTINCT(title_id),title_name
+		FROM		aurorascm.home_direct_post
+		ORDER BY	title_id ASC
+	</select>
+	
+	<!-- @author BYG 2018-5-9  海外直邮  根据标题ID获取banner图和关键词-->
+	<select id="getBannerAndKeywords" parameterType="Object" resultType="pd">
+		SELECT 		banner,keywords
+		FROM		aurorascm.home_direct_post
+		WHERE		title_id = #{titleID}
+		AND			type = 1
+	</select>
+	
+	<!-- @author BYG 2018-5-9  海外直邮  根据标题ID获取商品-->
+	<select id="getDirectPostGoods" parameterType="Object" resultType="pd">
+		SELECT 		h.goods_id,h.goods_show_name,h.goods_show_map,m.goods_price2
+		FROM		aurorascm.home_direct_post h
+		INNER JOIN  aurorascm.goods_manage m
+		ON			h.goods_id = m.goods_id
+		WHERE		h.title_id = #{titleID}
+		AND			h.type = 2
+		ORDER BY	h.seat ASC
+	</select>
+	
+	<!-- @author BYG 2018-5-9  各国好货  获取标题ID和标题名称-->
+	<select id="getCountriesGoodsTitle" resultType="pd">
+		SELECT 		DISTINCT(title_id),title_name
+		FROM		aurorascm.home_countries_goods
+		ORDER BY	title_id ASC
+	</select>
+	
+	<!-- @author BYG 2018-5-9  各国好货  根据标题ID获取banner图和关键词-->
+	<select id="getCountriesGoodsBanner" parameterType="Object" resultType="Object">
+		SELECT 		banner
+		FROM		aurorascm.home_countries_goods
+		WHERE		title_id = #{titleID}
+		AND			type = 1
+	</select>
+	
+	<!-- @author BYG 2018-5-9  各国好货  根据标题ID获取商品-->
+	<select id="getCountriesGoods" parameterType="Object" resultType="pd">
+		SELECT 		h.goods_id,h.goods_show_name,h.goods_show_map,m.goods_price2
+		FROM		aurorascm.home_countries_goods h
+		INNER JOIN  aurorascm.goods_manage m
+		ON			h.goods_id = m.goods_id
+		WHERE		h.title_id = #{titleID}
+		AND			h.type = 2
+		ORDER BY	h.seat ASC
+	</select>
+	
+	<!-- @author BYG 2018-5-9  热门品牌  根据页码获取品牌信息-->
+	<select id="getTopBrand" parameterType="int" resultType="pd">
+		SELECT 		h.brand_id,h.brand_name,h.brand_show_map,h.seat,b.recommend_map,b.care_num
+		FROM		aurorascm.home_top_brand h
+		INNER JOIN  aurorascm.brand b
+		ON			h.brand_id = b.brand_id
+		WHERE		h.page_number = #{pageNumber}
+		ORDER BY	h.seat ASC
+	</select>
+	
+	<!-- @author BYG 2018-5-9  热门品牌  根据页码获取品牌信息-->
+	<select id="getTopBrandMaxPage" resultType="int">
+		SELECT 		MAX(page_number)
+		FROM		aurorascm.home_top_brand
+		WHERE		brand_id != 1
+	</select>
+	
+</mapper>

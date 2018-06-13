@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="HomeSpecialReadMapper">
+	 <resultMap type="com.aurorascm.entity.home.HomeSpecial" id="HomeSpecialResultMap">
+		<id column="id" property="id"/>
+		<result column="url" property="url"/>
+		<result column="special_map" property="specialMap"/>
+		<result column="module" property="module"/>
+	</resultMap>
+	
+ 
+		<!-- @author SSY 2018-05-05  查询首页专题 -->
+	<select id="getHomeSpecialList" parameterType="java.lang.Integer" resultMap="HomeSpecialResultMap" >
+		SELECT 
+			id, url,special_map,module
+		FROM
+			aurorascm.home_special_new
+		WHERE
+			module = #{module}
+	</select>
+	
+	<!-- @author SSY 2018-05-15 查询活动专题商品1 -->
+	<select id="getFirstSpecialGoods" parameterType="java.lang.Integer" resultType="pd">
+		SELECT
+			c.goods_id,
+			c.goods_name,
+			c.brand_id,
+			c.brand_name,
+			c.ship_type,
+			c.category1_id,
+			c.category1,
+			c.main_map,
+			m.goods_price1,
+			m.rnum1,
+			m.goods_price2,
+			m.rnum2,
+			m.rnum3,
+			m.market_price,
+			(m.goods_sales+m.fake_sales) as goods_sales,
+			m.goods_stock,
+			m.jd_price,
+			m.tb_price,
+			m.sell_store_num,
+			m.deposit,
+			m.discount
+		FROM
+			aurorascm.goods_common c
+		INNER JOIN
+			aurorascm.goods_manage m
+		ON
+			c.goods_id = m.goods_id
+		INNER JOIN
+			aurorascm.special_goods_temp1 hsg
+		ON
+			hsg.goods_id = c.goods_id
+		WHERE
+		 	hsg.special_id = #{specialID}
+	</select>
+
+
+	<!-- @author SSY 2018-05-15 查询活动专题商品2 -->
+	<select id="getSecondSpecialGoods" parameterType="pd" resultType="pd">
+		SELECT
+			c.goods_id,
+			c.goods_name,
+			c.brand_id,
+			c.brand_name,
+			c.ship_type,
+			c.category1_id,
+			c.category1,
+			c.main_map,
+			m.goods_price1,
+			m.rnum1,
+			m.goods_price2,
+			m.rnum2,
+			m.rnum3,
+			m.market_price,
+			(m.goods_sales+m.fake_sales) as goods_sales,
+			m.goods_stock,
+			m.jd_price,
+			m.tb_price,
+			m.sell_store_num,
+			m.deposit 
+		FROM
+			aurorascm.goods_common c
+		INNER JOIN
+			aurorascm.goods_manage m
+		ON
+			c.goods_id = m.goods_id
+		INNER JOIN
+			aurorascm.special_goods_temp2 hsg
+		ON
+			hsg.goods_id = c.goods_id
+		WHERE 
+			hsg.module_id = #{module}
+		AND
+			hsg.special_id = #{specialID}
+	</select>
+	
+
+	
+	<!-- @author SSY 2018-05-15 查询活动专题商品3 -->
+	<select id="getThirdSpecialGoods" parameterType="pd" resultType="pd">
+		SELECT
+			c.goods_id,
+			c.goods_name,
+			c.brand_id,
+			c.brand_name,
+			c.ship_type,
+			c.category1_id,
+			c.category1,
+			c.main_map,
+			m.goods_price1,
+			m.rnum1,
+			m.goods_price2,
+			m.rnum2,
+			m.rnum3,
+			m.market_price,
+			(m.goods_sales+m.fake_sales) as goods_sales,
+			m.goods_stock,
+			m.jd_price,
+			m.tb_price,
+			m.sell_store_num,
+			m.deposit,
+			m.discount
+		FROM
+			aurorascm.goods_common c
+		INNER JOIN
+			aurorascm.goods_manage m
+		ON
+			c.goods_id = m.goods_id
+		INNER JOIN
+			aurorascm.special_goods_temp3 hsg
+		ON
+			hsg.goods_id = c.goods_id
+		WHERE 
+			hsg.module_id = #{module}
+		AND
+			hsg.special_id = #{specialID}
+		 
+	</select>
+	
+		
+	<!--@author SSY 2018-05-15查询活动专题商品4 -->
+	<select id="getFourthSpecialGoods" parameterType="pd" resultType="pd">
+		SELECT
+			c.goods_id,
+			c.goods_name,
+			c.brand_id,
+			c.brand_name,
+			c.ship_type,
+			c.category1_id,
+			c.category1,
+			c.main_map,
+			m.goods_price1,
+			m.rnum1,
+			m.goods_price2,
+			m.rnum2,
+			m.rnum3,
+			m.market_price,
+			(m.goods_sales+m.fake_sales) as goods_sales,
+			m.goods_stock,
+			m.jd_price,
+			m.tb_price,
+			m.sell_store_num,
+			m.deposit,
+			m.discount
+		FROM
+			aurorascm.goods_common c
+		INNER JOIN
+			aurorascm.goods_manage m
+		ON
+			c.goods_id = m.goods_id
+		INNER JOIN
+			aurorascm.special_goods_temp4 hsg
+		ON
+			hsg.goods_id = c.goods_id
+		WHERE 
+			hsg.module_id = #{module}
+		AND
+			hsg.special_id = #{specialID}
+	</select>
+	
+	<!--@author SSY 2018-05-16 查询专题背景图 -->
+	<select id="getSpecialBackground" parameterType="java.lang.Integer" resultType="java.lang.String">
+		SELECT
+			special_background
+		FROM
+			aurorascm.home_special_new 
+		WHERE
+			id = #{specialID}
+	</select>
+</mapper>

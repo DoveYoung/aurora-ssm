@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="DictionaryReadMapper">
+		
+	<!-- 获取所有货币符号以及货币名称; -->
+	<select id="getCurrencySign"  resultType="pd">
+		SELECT
+			name as currency_name,
+			value as currency_sign
+		FROM
+			aurora.dictionary
+		WHERE
+		 	p_id = 10000
+	</select>
+	
+
+	
+</mapper>

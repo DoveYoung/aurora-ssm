@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="DataReadMapper">
+
+	<!-- 通过商品ID获取商品本站价格数据 -->
+	<select id="getAPriceData" parameterType="String" resultType="pd" >
+		SELECT 
+			*
+		FROM 
+			aurorascm.data_aprice
+		WHERE 
+			goods_id = #{goodsID}
+	</select>
+	<!-- 通过商品ID获取商品京东价格数据 -->
+	<select id="getJPriceData" parameterType="String" resultType="pd" >
+		SELECT 
+			*
+		FROM 
+			aurorascm.data_jprice
+		WHERE 
+			goods_id = #{goodsID}
+	</select>
+	<!-- 通过商品ID获取商品淘宝价格数据 -->
+	<select id="getTPriceData" parameterType="String" resultType="pd" >
+		SELECT 
+			*
+		FROM 
+			aurorascm.data_tprice
+		WHERE 
+			goods_id = #{goodsID}
+	</select>
+	<!-- 通过商品ID获取商品淘宝再买商家数量数据 -->
+	<select id="getTStoreData" parameterType="String" resultType="pd" >
+		SELECT 
+			*
+		FROM 
+			aurorascm.data_ts_num
+		WHERE 
+			goods_id = #{goodsID}
+	</select>
+	
+	
+	
+<!-- ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 注释时间SSY 2017-11-9,数据统计重新做↓↓↓↓↓↓↓↓	↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ -->
+	
+	<!-- 通过系统时间获取当天网站浏览次数 -->
+	<!-- <select id="getTodaryWebBCount" parameterType="String" resultType="pd" >
+		SELECT 
+			browsing_count
+		FROM 
+			aurorascm.data_web_browsing
+		WHERE 
+			browsing_time = #{time}
+	</select> -->
+	
+	<!-- 根据商品ID获取商品被访问累计次数 -->
+	<!-- <select id="getGoodsTVC" parameterType="String" resultType="int" >
+		SELECT 
+			visit_count
+		FROM 
+			aurorascm.goods_manage
+		WHERE 
+			goods_id = #{goodsID}
+	</select> -->
+	
+	<!-- 根据商品ID获取商品被访问数据 -->
+	<!-- <select id="getGoodsVCD" parameterType="String" resultType="pd" >
+		SELECT 
+			*
+		FROM 
+			aurorascm.data_goods_visit
+		WHERE 
+			goods_id = #{goodsID}
+	</select> -->
+	
+	<!-- 根据ip获取 vc_id-->
+	<!-- <select id="getVisitorCount" parameterType="String" resultType="pd" >
+		SELECT 
+			vc_id
+		FROM 
+			aurorascm.data_visitor_count
+		WHERE 
+			ip = #{ip}
+	</select> -->
+	
+	<!-- 根据vc_id获取数据 -->
+	<!-- <select id="getVisitorCount1" parameterType="String" resultType="pd" >
+		SELECT 
+			*
+		FROM 
+			aurorascm.data_visitor_count
+		WHERE 
+			vc_id = '1'
+	</select> -->
+</mapper>

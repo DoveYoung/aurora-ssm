@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="DateWriteMapper">
+
+
+
+
+
+
+
+
+
+<!-- ↓↓↓↓↓↓↓ 以下注释时间SSY:2017-11-9 ,如需要取出,请剪切至上面↑↑↑↑↑↑↑↑↑-->
+	<!-- 更新网站当天浏览次数 -->
+	<!-- <update id="updateWebBCount" parameterType="pd">
+		UPDATE
+			aurorascm.data_web_browsing
+		SET
+			browsing_count = #{num}
+		WHERE
+			browsing_time = #{time}
+	</update> -->
+	
+	<!-- 添加当天网站浏览次数记录 -->
+	<!-- <insert id="addDayWebBCount" parameterType="String">
+		INSERT INTO	aurorascm.data_web_browsing
+		(
+			browsing_count,
+			browsing_time
+		) VALUES (
+			1,
+			#{time}
+		)
+	</insert> -->
+	
+	<!-- 根据商品ID更新商品累计访问次数 -->	
+	<!-- <update id="updateGoodsTVC" parameterType="pd">
+		UPDATE
+			aurorascm.goods_manage
+		SET
+			visit_count = #{visitCount}
+		WHERE
+			goods_id = #{goodsID}
+	</update>  -->
+	
+	<!-- 根据商品ID更新商品访问数据 -->	
+	<!-- <update id="updateGoodsVCD" parameterType="pd">
+		UPDATE
+			aurorascm.data_goods_visit
+		SET
+			total_count = #{totalCount},
+			${field} = #{monthCount}
+		WHERE
+			goods_id = #{goodsID}
+	</update> -->
+
+	<!-- 根据商品ID添加商品访问数据-->	
+	<!-- <insert id="addGoodsVCD" parameterType="String">
+		INSERT INTO	aurorascm.data_goods_visit
+		(
+			goods_id,
+			total_count,
+			${field}
+		) VALUES (
+			#{goodsID},
+			1,
+			1
+		)
+	</insert> -->
+	
+	<!--增加ip -->	
+	<!-- <insert id="addVisitorIP" parameterType="String">
+		INSERT INTO	aurorascm.data_visitor_count
+		(
+			ip
+		) VALUES (
+			#{ip}
+		)
+	</insert> -->
+
+	<!-- 更新访客数据 -->	
+	<!-- <update id="updateVisitorCount1" parameterType="pd">
+		UPDATE
+			aurorascm.data_visitor_count
+		SET
+			day_count = #{dayCount},
+			${field} = #{monthCount},
+			total_count = #{totalCount}
+		WHERE
+			vc_id = '1'
+	</update> -->
+</mapper>

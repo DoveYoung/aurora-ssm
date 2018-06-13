@@ -1,0 +1,405 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	    <modelVersion>4.0.0</modelVersion>
+	    <groupId>com</groupId>
+	    <artifactId>aurorascm</artifactId>
+	    <packaging>war</packaging>
+	    <version>0.0.1-SNAPSHOT</version>
+	    <name>aurorascm Maven Webapp</name>
+	    <url>http://maven.apache.org</url>
+	    <properties>
+	    	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	     	<!-- aurorascm版本号 -->
+	        <aurorascm.version>1.0.0</aurorascm.version>
+	        <!-- java版本号 -->
+	        <java.version>1.8</java.version>
+	        <!-- spring版本号 -->
+	        <spring.version>4.3.7.RELEASE</spring.version>
+	        <!-- mybatis版本号 -->
+	        <mybatis.version>3.4.1</mybatis.version>
+	        <!-- log4j日志文件管理包版本 -->
+	        <slf4j.version>1.7.19</slf4j.version>
+	        <log4j.version>1.2.17</log4j.version>
+	    </properties>
+	    <dependencies>
+
+			<!-- 单元测试  -->
+	        <dependency>
+	            <groupId>junit</groupId>
+	            <artifactId>junit</artifactId>
+	            <version>4.11</version>
+	            <!-- 表示开发的时候引入，发布的时候不会加载此包 -->
+	            <scope>test</scope>
+	        </dependency>
+	        <!-- spring核心包 -->
+	        <dependency>
+	            <groupId>org.springframework</groupId>
+	            <artifactId>spring-core</artifactId>
+	            <version>${spring.version}</version>
+	        </dependency>
+	        <dependency>
+	            <groupId>org.springframework</groupId>
+	            <artifactId>spring-web</artifactId>
+	            <version>${spring.version}</version>
+	        </dependency>
+	        <dependency>
+	            <groupId>org.springframework</groupId>
+	            <artifactId>spring-oxm</artifactId>
+	            <version>${spring.version}</version>
+	        </dependency>
+	        <dependency>
+	            <groupId>org.springframework</groupId>
+	            <artifactId>spring-tx</artifactId>
+	            <version>${spring.version}</version>
+	        </dependency>
+
+	        <dependency>
+	            <groupId>org.springframework</groupId>
+	            <artifactId>spring-jdbc</artifactId>
+	            <version>${spring.version}</version>
+	        </dependency>
+
+	        <dependency>
+	            <groupId>org.springframework</groupId>
+	            <artifactId>spring-webmvc</artifactId>
+	            <version>${spring.version}</version>
+	        </dependency>
+	        <dependency>
+	            <groupId>org.springframework</groupId>
+	            <artifactId>spring-aop</artifactId>
+	            <version>${spring.version}</version>
+	        </dependency>
+
+	        <dependency>
+	            <groupId>org.springframework</groupId>
+	            <artifactId>spring-context-support</artifactId>
+	            <version>${spring.version}</version>
+	        </dependency>
+
+	        <dependency>
+	            <groupId>org.springframework</groupId>
+	            <artifactId>spring-test</artifactId>
+	            <version>${spring.version}</version>
+	        </dependency>
+	        <!-- AOP联盟的API包  -->
+	        <dependency>
+				<groupId>aopalliance</groupId>
+				<artifactId>aopalliance</artifactId>
+				<version>1.0</version>
+			</dependency>
+			<!-- weaver-1.6.8.RELEASE.jar -->
+			<dependency>
+				<groupId>weaver-1.6.8</groupId>
+				<artifactId>weaver-1.6.8</artifactId>
+				<version>1.0</version>
+				<scope>system</scope>
+				<systemPath>${project.basedir}/src/main/webapp/WEB-INF/lib/com.springsource.org.aspectj.weaver-1.6.8.RELEASE.jar</systemPath>
+			</dependency>
+			<!--阿里短信服务jar包 -->
+			<dependency>
+				<groupId>com.aliyun.sdk.core</groupId>
+				<artifactId>aliyun-java-sdk-core</artifactId>
+				<version>3.2.3</version>
+				<scope>system</scope>
+				<systemPath>${project.basedir}/src/main/webapp/WEB-INF/lib/aliyun-java-sdk-core-3.2.3.jar</systemPath>
+			</dependency>
+			<dependency>
+				<groupId>com.aliyun.sdk.dysmsapi</groupId>
+				<artifactId>aliyun-java-sdk-dysmsapi</artifactId>
+				<version>1.0.0-SANPSHOT</version>
+				<scope>system</scope>
+				<systemPath>${project.basedir}/src/main/webapp/WEB-INF/lib/aliyun-java-sdk-dysmsapi-1.0.0-SANPSHOT.jar</systemPath>
+			</dependency>
+	        <!-- mybatis核心包 -->
+	        <dependency>
+	            <groupId>org.mybatis</groupId>
+	            <artifactId>mybatis</artifactId>
+	            <version>${mybatis.version}</version>
+	        </dependency>
+	        <!-- mybatis/spring插件包 -->
+	        <dependency>
+	            <groupId>org.mybatis</groupId>
+	            <artifactId>mybatis-spring</artifactId>
+	            <version>1.3.0</version>
+	        </dependency>
+	        <!-- 导入Mysql数据库链接jar包 -->
+	        <dependency>
+	            <groupId>mysql</groupId>
+	            <artifactId>mysql-connector-java</artifactId>
+	            <version>5.1.30</version>
+	        </dependency>
+	        <!-- 导入dbcp的jar包，用来在applicationContext.xml中配置数据库 -->
+	        <dependency>
+	            <groupId>commons-dbcp</groupId>
+	            <artifactId>commons-dbcp</artifactId>
+	            <version>1.2.2</version>
+	        </dependency>
+	        <!-- JSTL标签类 -->
+	        <dependency>
+	            <groupId>jstl</groupId>
+	            <artifactId>jstl</artifactId>
+	            <version>1.2</version>
+	        </dependency>
+	        <!-- StringUtils -->
+	        <dependency>
+	            <groupId>org.apache.commons</groupId>
+	            <artifactId>commons-lang3</artifactId>
+	            <version>3.1</version>
+	        </dependency>
+	        <!-- 日志文件管理包 -->
+	        <!-- log start -->
+	        <dependency>
+	            <groupId>log4j</groupId>
+	            <artifactId>log4j</artifactId>
+	            <version>${log4j.version}</version>
+	        </dependency>
+
+			<!-- 阿里 druid数据库连接池 -->
+			<dependency>
+				<groupId>com.alibaba</groupId>
+				<artifactId>druid</artifactId>
+				<version>1.0.9</version>
+			</dependency>
+	        <!-- 格式化对象，方便输出日志 -->
+	        <dependency>
+	            <groupId>com.alibaba</groupId>
+	            <artifactId>fastjson</artifactId>
+	            <version>1.1.41</version>
+	        </dependency>
+	        <dependency>
+	            <groupId>org.json</groupId>
+	            <artifactId>json</artifactId>
+	            <version>20090211</version>
+	        </dependency>
+	        <dependency>
+	            <groupId>org.slf4j</groupId>
+	            <artifactId>slf4j-api</artifactId>
+	            <version>${slf4j.version}</version>
+	        </dependency>
+	        <dependency>
+	            <groupId>org.slf4j</groupId>
+	            <artifactId>slf4j-log4j12</artifactId>
+	            <version>${slf4j.version}</version>
+	        </dependency>
+	        <!-- log end -->
+	        <!-- 映入JSON --> <!-- 2.0版本之后引入JSON -->
+			<dependency>
+			    <groupId>com.fasterxml.jackson.core</groupId>
+			    <artifactId>jackson-databind</artifactId>
+			    <version>2.8.7</version>
+			</dependency>
+	        <!-- 上传组件包 -->
+	        <dependency>
+	            <groupId>commons-fileupload</groupId>
+	            <artifactId>commons-fileupload</artifactId>
+	            <version>1.3.1</version>
+	        </dependency>
+	        <dependency>
+	            <groupId>commons-io</groupId>
+	            <artifactId>commons-io</artifactId>
+	            <version>2.4</version>
+	        </dependency>
+	        <dependency>
+	            <groupId>commons-codec</groupId>
+	            <artifactId>commons-codec</artifactId>
+	            <version>1.9</version>
+	        </dependency>
+	        <dependency>
+	            <groupId>commons-beanutils</groupId>
+	            <artifactId>commons-beanutils</artifactId>
+	            <version>1.8.0</version>
+	        </dependency>
+            <!-- 导入java ee jar 包 -->
+	        <dependency>
+	            <groupId>javax</groupId>
+	            <artifactId>javaee-api</artifactId>
+	            <scope>provided</scope>
+	            <version>7.0</version>
+	        </dependency>
+        	<!-- shiro-all -->
+			<dependency>
+				<groupId>shiro</groupId>
+				<artifactId>shiro</artifactId>
+				<version>1.0</version>
+				<scope>system</scope>
+				<systemPath>${project.basedir}/src/main/webapp/WEB-INF/lib/shiro-all-1.2.3.jar</systemPath>
+			</dependency>
+			<dependency>
+				<groupId>org.codehaus.jackson</groupId>
+				<artifactId>jackson-mapper-asl</artifactId>
+				<version>1.9.13</version>
+			</dependency>
+			<dependency>
+				<groupId>com.google.code.gson</groupId>
+				<artifactId>gson</artifactId>
+				<version>2.3.1</version>
+			</dependency>
+			<!--QRCode -->
+			<dependency>
+				<groupId>QRCode</groupId>
+				<artifactId>QRCode</artifactId>
+				<version>1.0</version>
+				<scope>system</scope>
+				<systemPath>${project.basedir}/src/main/webapp/WEB-INF/lib/QRCode.jar</systemPath>
+			</dependency>
+			<!-- sun.misc.BASE64Decoder -->
+			<dependency>
+				<groupId>sun-misc</groupId>
+				<artifactId>sun-misc</artifactId>
+				<version>1.0</version>
+				<scope>system</scope>
+				<systemPath>${project.basedir}/src/main/webapp/WEB-INF/lib/sun.misc.BASE64Decoder.jar</systemPath>
+			</dependency>
+			<!-- aliyun oss -->
+			<dependency>
+				<groupId>com.aliyun.oss</groupId>
+				<artifactId>aliyun-sdk-oss</artifactId>
+				<version>2.5.0</version>
+			</dependency>
+			<!-- 阿里支付 -->
+			<dependency>
+				<groupId>alipay-sdk-java20170829142630-source</groupId>
+				<artifactId>alipay-sdk-java20170829142630-source</artifactId>
+				<version>1.0</version>
+				<scope>system</scope>
+				<systemPath>${project.basedir}/src/main/webapp/WEB-INF/lib/alipay-sdk-java20170829142630-source.jar</systemPath>
+			</dependency>
+			<dependency>
+				<groupId>alipay-sdk-java20170829142630</groupId>
+				<artifactId>alipay-sdk-java20170829142630</artifactId>
+				<version>1.0</version>
+				<scope>system</scope>
+				<systemPath>${project.basedir}/src/main/webapp/WEB-INF/lib/alipay-sdk-java20170829142630.jar</systemPath>
+			</dependency>
+			<dependency>
+				<groupId>alipay-commons-logging-1.1.1-sources</groupId>
+				<artifactId>alipay-commons-logging-1.1.1-sources</artifactId>
+				<version>1.0</version>
+				<scope>system</scope>
+				<systemPath>${project.basedir}/src/main/webapp/WEB-INF/lib/commons-logging-1.1.1-sources.jar</systemPath>
+			</dependency>
+			<dependency>
+				<groupId>alipay-commons-logging-1.1.1</groupId>
+				<artifactId>alipay-commons-logging-1.1.1</artifactId>
+				<version>1.0</version>
+				<scope>system</scope>
+				<systemPath>${project.basedir}/src/main/webapp/WEB-INF/lib/commons-logging-1.1.1.jar</systemPath>
+			</dependency>
+			<!-- 微信支付 -->
+			<dependency>
+		   	    <groupId>com.github.wxpay</groupId>
+			    <artifactId>wxpay-sdk</artifactId>
+			    <version>0.0.3</version>
+			</dependency>
+	        <!-- google二维码工具 -->
+	        <dependency>
+	            <groupId>com.google.zxing</groupId>
+	            <artifactId>javase</artifactId>
+	            <version>3.1.0</version>
+	        </dependency>
+			<!-- jxl  -->
+			<dependency>
+	     	  <groupId>net.sourceforge.jexcelapi</groupId>
+	      	 <artifactId>jxl</artifactId>
+	      	 <version>2.6.10</version>
+	     	</dependency>
+	     	<!--spring和redis整合-->
+	     	<dependency>
+			    <groupId>org.springframework.data</groupId>
+			    <artifactId>spring-data-commons</artifactId>
+			    <version>2.0.1.RELEASE</version>
+			</dependency>
+			<!--spring-data-redis-->
+			<dependency>
+			    <groupId>org.springframework.data</groupId>
+			    <artifactId>spring-data-redis</artifactId>
+			    <version>1.7.1.RELEASE</version>
+			</dependency>
+			<dependency>
+				<groupId>redis.clients</groupId>
+				<artifactId>jedis</artifactId>
+				<version>2.8.1</version>
+			</dependency>
+			<!--solr-->
+			<dependency>
+				<groupId>org.apache.solr</groupId>
+				<artifactId>solr-solrj</artifactId>
+				<version>7.1.0</version>
+			</dependency>
+			<!--spring和solr整合中遇到httpclient版本冲突（原版本4.4.1）-->
+			<dependency>
+				<groupId>org.apache.httpcomponents</groupId>
+				<artifactId>httpclient</artifactId>
+				<version>4.5.4</version>
+			</dependency>
+			<!--jieba 中文分词-->
+			<dependency>
+			    <groupId>com.huaban</groupId>
+			    <artifactId>jieba-analysis</artifactId>
+			    <version>1.0.2</version>
+			</dependency>
+			
+	    </dependencies>
+	    <!-- maven自动发布到tomcat，添加插件配置，不添加会报400 403 错误-->
+	    <repositories>
+		<repository>
+		<id>people.apache.snapshots</id>
+		<url>http://repository.apache.org/content/groups/snapshots-group/</url>
+		<releases>
+		<enabled>false</enabled>
+		</releases>
+		<snapshots>
+		<enabled>true</enabled>
+		</snapshots>
+		</repository>
+		</repositories>
+		<pluginRepositories>
+		<pluginRepository>
+		   <id>apache.snapshots</id>
+		   <name>Apache Snapshots</name>
+		   <url>
+		       http://repository.apache.org/content/groups/snapshots-group/
+		   </url>
+		   <releases>
+		       <enabled>false</enabled>
+		   </releases>
+		   <snapshots>
+		       <enabled>true</enabled>
+		   </snapshots>
+		</pluginRepository>
+		</pluginRepositories>
+
+	    <build>
+	        <finalName>aurorascm</finalName>
+	        <plugins>
+	        <!-- 修改maven默认的JRE编译版本，防止maven update project之后
+				把jre配置的成默认的1.5 ，根据自己的情况更改为1.7或1.8 -->
+	          <plugin>
+	            <groupId>org.apache.maven.plugins</groupId>
+	            <artifactId>maven-compiler-plugin</artifactId>
+	            <version>2.3.2</version>
+	            <configuration>
+	              <source>1.8</source>
+	              <target>1.8</target>
+	              <encoding>UTF-8</encoding>
+	            </configuration>
+	          </plugin>
+
+	          <plugin>
+                <groupId>org.apache.tomcat.maven</groupId>
+                <artifactId>tomcat7-maven-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                   <path>/${project.build.finalName}</path>
+                   <server>tomcat7</server>
+                   <uriEncoding>UTF-8</uriEncoding>
+                   <!-- 这里是本地tomcat，如果是远程服务器可以改成对应的地址，实现自动部署-->
+                   <url>http://localhost:8080/manager/text</url>
+                   <username>tomcat</username>
+                   <password>tomcat</password>
+                </configuration>
+              </plugin>
+
+	        </plugins>
+	    </build>
+	</project>

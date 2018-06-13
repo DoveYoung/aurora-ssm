@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="CustomerWriteMapper">
+		
+	<!-- 客户注册 -->
+	<insert id="saveCustomerRegister" parameterType="pd">
+		INSERT INTO aurorascm.sys_customer (
+			customer_email,
+			customer_password,
+			customer_mobile,			
+			customer_status,
+			register_time,
+			salt,
+			sales_manager
+		)VALUES	(
+			#{customerEmail},
+			#{customerPassword},
+			#{customerMobile},
+			#{customerStatus},
+			#{registerTime},
+			#{salt},
+			#{sSalasManager}
+		)
+	</insert>
+		
+	<!-- 更新用户状态   禁用的用户不能由前台更改状态-->
+	<update id="updateCustomerStatus" parameterType="pd" >
+		UPDATE 
+			aurorascm.sys_customer
+		SET
+			customer_status= #{customerStatus} 
+		WHERE 
+			customer_id = #{customerID}
+		AND
+			customer_status != 4
+	</update>
+	
+	<!-- 更新用户IP和登陆时间 -->
+	<update id="updateCustomerIP" parameterType="pd" >
+		UPDATE 
+			aurorascm.sys_customer
+		SET
+			customer_ip= #{customerIP}, 
+			last_login_time= #{time}
+		WHERE 
+			customer_id = #{customerID}
+	</update>
+	
+	<!-- 重置用户密码 -->
+	<update id="updatePW" parameterType="pd" >
+		UPDATE 
+			aurorascm.sys_customer
+		SET
+			customer_password = #{customerPassword}
+		WHERE 
+			customer_email = #{customerEmail}
+	</update>
+	<!-- 修改用户个人资料 -->
+	<update id="updateMyInfo" parameterType="pd" >
+		UPDATE 
+			aurorascm.sys_customer
+		SET
+			customer_name = #{name},
+			customer_mobile = #{mobile},
+			customer_email = #{email},
+			customer_sex = #{sex},
+			customer_birthday = #{birthday},
+			sms_push = #{smsPush},
+			email_push = #{emailPush}
+		WHERE 
+			customer_id = #{customerID}
+	</update>
+	
+		<!-- 添加品牌关注; -->
+	<update id="addBrandCare" parameterType="pd" >
+		UPDATE 
+			aurorascm.sys_customer
+		SET
+			care_brand = CONCAT(care_brand,#{brandID},',')
+		WHERE 
+			customer_id = #{customerID}
+	</update>
+	
+		<!-- 取消品牌关注; -->
+	<update id="cancelBrandCare" parameterType="pd" >
+		UPDATE 
+			aurorascm.sys_customer
+		SET
+			care_brand = #{brandCare}
+		WHERE 
+			customer_id = #{customerID}
+	</update>
+	
+	
+	
+	
+		<!-- 更新订单状态为8同时统计购买金额和购买次数,注释原因:数据统计重新设计,2017-11-9 SSY. -->
+	<!-- <update id="updateSCBuy" parameterType="pd" >
+		UPDATE 
+			aurorascm.sys_customer  
+		SET
+			buy_num = buy_num + #{num},
+			buy_money = buy_money + #{money}
+		WHERE 
+			customer_id = #{customerID}
+	</update> -->
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+</mapper>

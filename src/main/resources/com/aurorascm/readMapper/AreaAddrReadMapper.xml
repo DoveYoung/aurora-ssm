@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="AreaAddrReadMapper">
+
+	<!-- 商品详情页获取省份 -->
+	<select id="getProvince" resultType="pd" >
+		SELECT
+			area_id,
+			area_name,
+			area_value
+		FROM 
+			aurorascm.p_city_area
+		WHERE 
+			level = 1
+	</select>
+	
+	<!-- 根据CustomerID和关键词搜索客户收获地址-->
+	<select id="likeShipAddr" parameterType="pd" resultType="pd" >
+		SELECT 
+			sa_id,
+			name,
+			mobile,
+			telephone,
+			province,
+			province_pin,
+			city,
+			area,
+			detail_address,
+			address_type,
+			id_card
+		FROM 
+			aurorascm.ship_address
+		WHERE 
+			customer_id = #{customerID}
+		AND 
+			address_type != '1'
+			<if test="keyword != null and keyword != ''"><!-- 关键词检索 -->
+			AND
+				(
+					name LIKE CONCAT(CONCAT('%', #{keyword}),'%')
+					or 
+					province LIKE CONCAT(CONCAT('%', #{keyword}),'%') 
+					or 
+					city LIKE CONCAT(CONCAT('%', #{keyword}),'%') 
+					or
+					detail_address LIKE CONCAT(CONCAT('%', #{keyword}),'%')
+					or 
+					mobile LIKE CONCAT(CONCAT('%', #{keyword}),'%')
+				)
+			</if>
+	</select>
+	
+	<!-- 根据收货地址ID:saID得到客户收获地址-->
+	<select id="getShipAddr" parameterType="String" resultType="pd" >
+		SELECT 
+			sa_id,
+			name,
+			mobile,
+			telephone,
+			province,
+			province_pin,
+			city,
+			area,
+			detail_address,
+			address_type,
+			id_card
+		FROM 
+			aurorascm.ship_address
+		WHERE 
+			sa_id = #{saID}
+	</select>
+		
+	<!-- 根据CustomerID 和地址类型得到客户1号微仓地址 -->
+	<select id="getWC1Address" parameterType="String" resultType="pd" >
+		SELECT 
+			sa_id,
+			name,
+			mobile,
+			telephone,
+			province,
+			province_pin,
+			city,
+			area,
+			detail_address,
+			address_type,
+			id_card
+		FROM 
+			aurorascm.ship_address
+		WHERE 
+			customer_id = #{customerID}
+		AND
+			address_type = '1'
+	</select>
+	
+	<!-- 根据CustomerID得到客户使用次数最高的五个收获地址 -->
+	<select id="get5ShipAddress" parameterType="String" resultType="pd" >
+		SELECT 
+			sa_id,
+			name,
+			mobile,
+			telephone,
+			province,
+			province_pin,
+			city,
+			area,
+			detail_address,
+			address_type,
+			id_card
+		FROM 
+			aurorascm.ship_address
+		WHERE 
+			customer_id = #{customerID}
+		AND 
+			address_type != '1'
+		ORDER BY 
+			times_used DESC
+		LIMIT 0, 5
+	</select>
+	
+	<!-- 根据CustomerID得到客户使用次数最高的五个收获地址 -->
+	<select id="get5ShipAddressExcludeNew" parameterType="pd" resultType="pd" >
+		SELECT 
+			sa_id,
+			name,
+			mobile,
+			telephone,
+			province,
+			province_pin,
+			city,
+			area,
+			detail_address,
+			address_type,
+			id_card
+		FROM 
+			aurorascm.ship_address
+		WHERE 
+			customer_id = #{customerID}
+		AND 
+			address_type != '1'
+		AND 
+			sa_id != #{saIDNew}	
+		ORDER BY 
+			times_used DESC
+		LIMIT 0, 5
+	</select>
+	
+		<!-- 根据CustomerID+页码得到客户4个收获地址，按使用次数由高到低排序。 -->
+	<select id="get4ShipAddress" parameterType="pd" resultType="pd" >
+		SELECT 
+			sa_id,
+			name,
+			mobile,
+			province,
+			telephone,
+			province_pin,
+			city,
+			area,
+			detail_address,
+			address_type,
+			id_card
+		FROM 
+			aurorascm.ship_address
+		WHERE 
+			customer_id = #{customerID}
+		AND 
+			address_type = '4'
+		AND
+			sa_id != #{newSaID}
+		ORDER BY 
+			times_used DESC
+		LIMIT #{start}, #{end}
+	</select>
+			 
+	<!-- 根据CustomerID得到客户最新1个收获地址-->
+	<select id="getNewShipAddr" parameterType="String" resultType="pd" >
+		SELECT 
+			sa_id,
+			name,
+			mobile,
+			province,
+			telephone,
+			province_pin,
+			city,
+			area,
+			detail_address,
+			address_type,
+			id_card
+		FROM 
+			aurorascm.ship_address
+		WHERE 
+			customer_id = #{customerID}
+		AND 
+			address_type != '1'
+		ORDER BY 
+			operate_time DESC
+		LIMIT 0, 1
+	</select>
+	
+	<!-- 根据父级区域ID搜索相应地区-->
+	<select id="getUArea" parameterType="String" resultType="pd">
+		SELECT 
+			area_id,
+			area_name,
+			area_value,
+			level,
+			parent_id
+		FROM 
+			aurorascm.p_city_area
+		WHERE 
+			parent_id = #{areaID}
+	</select>
+	
+	
+	<!-- 分页显示用户收货地址 -->
+	<select id="getAddress" parameterType="page" resultType="pd">
+		SELECT 
+			*
+		FROM 
+			aurorascm.ship_address
+		WHERE 
+			customer_id = #{pd.customerID}
+		AND
+			address_type = 4
+		ORDER BY
+			operate_time DESC
+		LIMIT
+			#{fromIndex}, #{pageSize}
+	</select>
+	
+	<!-- 查询用户收货地址总数 -->
+	<select id="getAddressNum" parameterType="page" resultType="int">
+		SELECT 
+			count(sa_id)
+		FROM 
+			aurorascm.ship_address
+		WHERE 
+			customer_id = #{pd.customerID}
+		AND
+			address_type = 4
+	</select>
+	
+	<!-- 查询个人收获地址总数，除去微仓地址和最新地址 -->
+	<select id="getShipAddrNum" parameterType="pd" resultType="int">
+		SELECT 
+			count(sa_id) num
+		FROM 
+			aurorascm.ship_address
+		WHERE 
+			customer_id = #{customerID}
+		AND
+			address_type = 4
+		AND
+			sa_id != #{newSaID}
+	</select>
+	
+	
+</mapper>

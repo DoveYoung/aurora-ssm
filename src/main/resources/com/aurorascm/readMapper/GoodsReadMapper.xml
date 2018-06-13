@@ -1,0 +1,865 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="GoodsReadMapper">
+
+	<resultMap type="GoodsCommon" id="goodsCommonResultMap">
+		<id column="goods_id" property="goodsID" />
+		<result column="goods_name" property="goodsName" />
+		<result column="brand_id" property="brandID" />
+		<result column="brand_name" property="brandName" />
+		<result column="ship_type" property="shipType" />
+		<result column="ship_typen" property="shipTypeN" />
+		<result column="goods_sign" property="goodsSign" />
+		<result column="category1_id" property="category1ID" />
+		<result column="category2_id" property="category2ID" />
+		<result column="category2" property="category2" />
+		<result column="main_map" property="mainMap" />
+		<association property="gManage" column="manage_id"
+			javaType="GoodsManage">
+			<id column="manage_id" property="manageID" />
+			<result column="goods_id" property="goodsID" />
+			<result column="relate1_gid" property="relate1GID" />
+			<result column="relate1_gid" property="relate2GID" />
+			<result column="goods_price1" property="goodsPrice1" />
+			<result column="rnum1" property="rnum1" />
+			<result column="goods_price2" property="goodsPrice2" />
+			<result column="rnum2" property="rnum2" />
+			<result column="rnum3" property="rnum3" />
+			<result column="goods_sales" property="goodsSales" />
+			<result column="fake_sales" property="fakeSales" />
+			<result column="goods_stock" property="goodsStock" />
+			<result column="market_price" property="marketPrice" />
+			<result column="jd_price" property="jdPrice" />
+			<result column="tb_price" property="tbPrice" />
+			<result column="deposit" property="deposit" />
+			<result column="sell_store_num" property="sellStoreNum" />
+		</association>
+	</resultMap>
+
+	<!-- 字段 -->
+	<sql id="Field">
+		goods_id,
+		goods_name,
+		brand_id,
+		brand_name,
+		goods_price,
+		market_price,
+		goods_sales,
+		fake_sales,
+		goods_stock,
+		ship_type,
+		goods_sign,
+		category1_id,
+		category2_id,
+		category2,
+		main_map
+	</sql>
+
+	<!-- 通过品牌ID,邮寄方式获取品牌下所有商品 -->
+	<select id="getGoodsListByBrandID" parameterType="page"	resultType="pd">
+		SELECT
+			c.goods_id,c.goods_name,c.brand_id,c.brand_name,c.ship_type,c.goods_sign,c.category2_id,c.category2,c.main_map,
+			m.relate1_gid,m.relate2_gid,m.goods_price1,m.rnum1,m.goods_price2,m.rnum2,m.rnum3,m.market_price,m.goods_sales,
+			m.fake_sales,m.goods_stock,m.jd_price,m.tb_price,m.sell_store_num,m.review_time,m.deposit,
+			(m.fake_sales+m.goods_sales) sales
+		FROM		aurorascm.goods_common c
+		INNER JOIN	aurorascm.goods_manage m
+		ON			c.goods_id = m.goods_id
+		WHERE		c.brand_id = #{pd.brandID}
+		AND			m.goods_state = '4'
+			<if test="pd.sShipType != null and pd.sShipType != '' ">
+				AND
+				m.ship_type = #{pd.sShipType}
+			</if>
+			<if test="pd.orderBY=='1'.toString()">
+				ORDER BY sales DESC
+			</if>
+			<if test="pd.orderBY=='2'.toString()">
+				ORDER BY m.review_time DESC
+			</if>
+			<if test="pd.orderBY=='3'.toString()">
+				ORDER BY m.goods_price2 ${pd.orderAD}
+			</if>
+		LIMIT 9999999
+	</select>
+
+	<!-- 通过品牌ID,邮寄方式获取品牌下所有商品的总数 -->
+	<select id="getGNumByBrandID" parameterType="page" resultType="int">
+		SELECT COUNT(DISTINCT(c.goods_id)) num
+		FROM		aurorascm.goods_common c
+		INNER JOIN	aurorascm.goods_manage m
+		ON			c.goods_id = m.goods_id
+		WHERE		c.brand_id = #{pd.brandID}
+		AND			m.goods_state = '4'
+			<if test="pd.sShipType != null and pd.sShipType != '' ">
+				AND		m.ship_type = #{pd.sShipType}
+			</if>
+	</select>
+
+
+	<!-- 获取随机的四个商品 -->
+	<select id="getRand4Goods" parameterType="pd" resultType="pd">
+		SELECT
+		c.goods_id,
+		c.goods_name,
+		c.brand_id,
+		c.brand_name,
+		c.ship_type,
+		c.goods_sign,
+		c.category2_id,
+		c.category2,
+		c.main_map,
+		m.relate1_gid,
+		m.relate2_gid,
+		m.goods_price1,
+		m.rnum1,
+		m.goods_price2,
+		m.rnum2,
+		m.rnum3,
+		m.market_price,
+		m.goods_sales,
+		m.fake_sales,
+		m.goods_stock,
+		m.jd_price,
+		m.tb_price,
+		m.deposit,
+		m.sell_store_num
+		FROM
+		aurorascm.goods_common c
+		INNER JOIN
+		aurorascm.goods_manage m
+		ON
+		c.goods_id = m.goods_id
+		WHERE
+			m.goods_state =	'4'
+		<if test="category2ID != null and category2ID.size() > 0 ">
+		AND
+			c.category2_id in
+             	<foreach item="item" index="index" collection="category2ID" open="(" separator="," close=")">
+                	#{item}
+             	</foreach>
+        </if>
+		<if test="sShipType != null and sShipType != '' ">
+			AND
+			m.ship_type = #{sShipType}
+		</if>
+		<!-- ORDER BY m.goods_sales DESC 11.14-->
+		ORDER BY RAND()
+		LIMIT 0, 4
+	</select>
+
+	 
+	<!-- SSY 根据关键词模糊查询商品 -->
+	<select id="getGoodsLikeKeyword" parameterType="page" resultMap="goodsCommonResultMap">
+		(SELECT
+			c.goods_id,
+			c.goods_name,
+			c.brand_id,
+			c.brand_name,
+			c.ship_type,
+			c.goods_sign,
+			c.category2_id,
+			c.category2,
+			c.main_map,
+			m.relate1_gid,
+			m.relate2_gid,
+			m.goods_price1,
+			m.rnum1,
+			m.goods_price2,
+			m.rnum2,
+			m.rnum3,
+			m.market_price,
+			m.goods_sales,
+			m.fake_sales,
+			m.goods_stock,
+			m.jd_price,
+			m.tb_price,
+			m.sell_store_num,
+			m.deposit,
+			(m.fake_sales+m.goods_sales) sales
+		FROM
+			aurorascm.goods_common c
+		INNER JOIN
+			aurorascm.goods_manage m
+		ON
+			c.goods_id = m.goods_id
+		WHERE m.goods_state = '4'
+			<if test="pd.keyword1 != null and pd.keyword1.size >0"><!-- 关键词检索 -->
+				AND
+				<foreach collection="pd.keyword1" item="item" index="index"
+					open="(" separator="AND" close=")">
+					(CONCAT(IFNULL(c.goods_name,''),IFNULL(c.brand_name,''),IFNULL(c.category1,''),
+					IFNULL(c.category2,''),IFNULL(c.category3,''),IFNULL(c.keyword1,''),IFNULL(c.keyword2,''),
+					IFNULL(c.keyword3,''),IFNULL(c.keyword4,''),IFNULL(c.keyword5,''),IFNULL(c.goods_colour,''),
+					IFNULL(c.product_area,''),IFNULL(c.goods_purpose,''),IFNULL(c.goods_sign,''),IFNULL(c.ship_typen,''),
+					IFNULL(m.depositen,'')) 
+					LIKE CONCAT('%', #{item},'%')
+					OR m.goods_id = #{item}
+					OR c.goods_code = #{item}
+					OR m.postage_stylen = #{item})
+				</foreach>
+			</if>
+			<if test="pd.sShipType != null and pd.sShipType != '' ">
+				AND
+				m.ship_type = #{pd.sShipType}
+			</if>
+			<if test="pd.orderBY=='1'.toString()">
+				ORDER BY sales DESC
+			</if>
+			<if test="pd.orderBY=='2'.toString()">
+				ORDER BY m.review_time DESC
+			</if>
+			<if test="pd.orderBY=='3'.toString()">
+				ORDER BY m.goods_price2 ${pd.orderAD}
+			</if>
+		LIMIT 9999999
+		)
+		UNION ALL
+		(SELECT
+			c.goods_id,
+			c.goods_name,
+			c.brand_id,
+			c.brand_name,
+			c.ship_type,
+			c.goods_sign,
+			c.category2_id,
+			c.category2,
+			c.main_map,
+			m.relate1_gid,
+			m.relate2_gid,
+			m.goods_price1,
+			m.rnum1,
+			m.goods_price2,
+			m.rnum2,
+			m.rnum3,
+			m.market_price,
+			m.goods_sales,
+			m.fake_sales,
+			m.goods_stock,
+			m.jd_price,
+			m.tb_price,
+			m.sell_store_num,
+			m.deposit,
+			(m.fake_sales+m.goods_sales) sales
+		FROM
+			aurorascm.goods_common c
+		INNER JOIN
+			aurorascm.goods_manage m
+		ON
+			c.goods_id = m.goods_id
+		WHERE
+			m.goods_state = '4'
+		AND
+			c.goods_id NOT IN
+			(SELECT 
+				cc.goods_id
+			FROM
+				aurorascm.goods_common cc
+			INNER JOIN
+				aurorascm.goods_manage mm
+			ON
+				cc.goods_id = mm.goods_id
+			WHERE mm.goods_state = '4'
+				<if test="pd.keyword1 != null and pd.keyword1.size >0"><!-- 关键词检索 -->
+					AND
+					<foreach collection="pd.keyword1" item="item" index="index"	open="(" separator="AND" close=")">
+						(CONCAT(IFNULL(cc.goods_name,''),IFNULL(cc.brand_name,''),IFNULL(cc.category1,''),
+						IFNULL(cc.category2,''),IFNULL(cc.category3,''),IFNULL(cc.keyword1,''),IFNULL(cc.keyword2,''),
+						IFNULL(cc.keyword3,''),IFNULL(cc.keyword4,''),IFNULL(cc.keyword5,''),IFNULL(cc.goods_colour,''),
+						IFNULL(cc.product_area,''),IFNULL(cc.goods_purpose,''),IFNULL(cc.goods_sign,''),IFNULL(cc.ship_typen,''),
+						IFNULL(mm.depositen,'')) 
+						LIKE CONCAT('%', #{item},'%')
+						OR mm.goods_id = #{item}
+						OR cc.goods_code = #{item}
+						OR mm.postage_stylen = #{item})
+					</foreach>
+				</if>
+				<if test="pd.sShipType != null and pd.sShipType != '' ">
+					AND
+					mm.ship_type = #{pd.sShipType}
+				</if>
+			)
+			<if test="pd.keyword1 != null and pd.keyword1.size >0"><!-- 关键词检索 -->
+				AND
+				<foreach collection="pd.keyword1" item="item" index="index"
+					open="(" separator="OR" close=")">
+					(CONCAT(IFNULL(c.goods_name,''),IFNULL(c.brand_name,''),IFNULL(c.category1,''),
+					IFNULL(c.category2,''),IFNULL(c.category3,''),IFNULL(c.keyword1,''),IFNULL(c.keyword2,''),
+					IFNULL(c.keyword3,''),IFNULL(c.keyword4,''),IFNULL(c.keyword5,''),IFNULL(c.goods_colour,''),
+					IFNULL(c.product_area,''),IFNULL(c.goods_purpose,''),IFNULL(c.goods_sign,''),IFNULL(c.ship_typen,''),
+					IFNULL(m.depositen,'')) 
+					LIKE CONCAT('%', #{item},'%')
+					OR m.goods_id = #{item}
+					OR c.goods_code = #{item}
+					OR m.postage_stylen = #{item})
+				</foreach>
+			</if>
+			<if test="pd.sShipType != null and pd.sShipType != '' ">
+				AND
+				m.ship_type = #{pd.sShipType}
+			</if>
+		)
+		LIMIT
+		#{fromIndex}, #{pageSize}
+	</select>
+
+	<!-- SSY 根据关键词模糊查询商品总数 -->
+	<select id="getGNumLikeKeyword" parameterType="page" resultType="int">
+		SELECT
+			count(*) num
+		FROM
+			(
+				(SELECT
+					c.goods_id
+				FROM
+					aurorascm.goods_common c
+				INNER JOIN
+					aurorascm.goods_manage m
+				ON
+					c.goods_id = m.goods_id
+				WHERE m.goods_state = '4'
+					<if test="pd.keyword1 != null and pd.keyword1.size >0"><!-- 关键词检索 -->
+						AND
+						<foreach collection="pd.keyword1" item="item" index="index"
+							open="(" separator="AND" close=")">
+							(CONCAT(IFNULL(c.goods_name,''),IFNULL(c.brand_name,''),IFNULL(c.category1,''),
+							IFNULL(c.category2,''),IFNULL(c.category3,''),IFNULL(c.keyword1,''),IFNULL(c.keyword2,''),
+							IFNULL(c.keyword3,''),IFNULL(c.keyword4,''),IFNULL(c.keyword5,''),IFNULL(c.goods_colour,''),
+							IFNULL(c.product_area,''),IFNULL(c.goods_purpose,''),IFNULL(c.goods_sign,''),IFNULL(c.ship_typen,''),
+							IFNULL(m.depositen,'')) 
+							LIKE CONCAT('%', #{item},'%')
+							OR m.goods_id = #{item}
+							OR c.goods_code = #{item}
+							OR m.postage_stylen = #{item})
+						</foreach>
+					</if>
+					<if test="pd.sShipType != null and pd.sShipType != '' ">
+						AND
+						m.ship_type = #{pd.sShipType}
+					</if>
+				)
+				UNION ALL
+				(SELECT
+					c.goods_id
+				FROM
+					aurorascm.goods_common c
+				INNER JOIN
+					aurorascm.goods_manage m
+				ON
+					c.goods_id = m.goods_id
+				WHERE
+					m.goods_state = '4'
+				AND
+					c.goods_id NOT IN
+						(SELECT 
+							cc.goods_id
+						FROM
+							aurorascm.goods_common cc
+						INNER JOIN
+							aurorascm.goods_manage mm
+						ON
+							cc.goods_id = mm.goods_id
+						WHERE mm.goods_state = '4'
+							<if test="pd.keyword1 != null and pd.keyword1.size >0"><!-- 关键词检索 -->
+								AND
+								<foreach collection="pd.keyword1" item="item" index="index"	open="(" separator="AND" close=")">
+									(CONCAT(IFNULL(cc.goods_name,''),IFNULL(cc.brand_name,''),IFNULL(cc.category1,''),
+									IFNULL(cc.category2,''),IFNULL(cc.category3,''),IFNULL(cc.keyword1,''),IFNULL(cc.keyword2,''),
+									IFNULL(cc.keyword3,''),IFNULL(cc.keyword4,''),IFNULL(cc.keyword5,''),IFNULL(cc.goods_colour,''),
+									IFNULL(cc.product_area,''),IFNULL(cc.goods_purpose,''),IFNULL(cc.goods_sign,''),IFNULL(cc.ship_typen,''),
+									IFNULL(mm.depositen,'')) 
+									LIKE CONCAT('%', #{item},'%')
+									OR mm.goods_id = #{item}
+									OR cc.goods_code = #{item}
+									OR mm.postage_stylen = #{item})
+								</foreach>
+							</if>
+							<if test="pd.sShipType != null and pd.sShipType != '' ">
+								AND
+								mm.ship_type = #{pd.sShipType}
+							</if>
+						)
+					<if test="pd.keyword1 != null and pd.keyword1.size >0"><!-- 关键词检索 -->
+						AND
+						<foreach collection="pd.keyword1" item="item" index="index"
+							open="(" separator="OR" close=")">
+							(CONCAT(IFNULL(c.goods_name,''),IFNULL(c.brand_name,''),IFNULL(c.category1,''),
+							IFNULL(c.category2,''),IFNULL(c.category3,''),IFNULL(c.keyword1,''),IFNULL(c.keyword2,''),
+							IFNULL(c.keyword3,''),IFNULL(c.keyword4,''),IFNULL(c.keyword5,''),IFNULL(c.goods_colour,''),
+							IFNULL(c.product_area,''),IFNULL(c.goods_purpose,''),IFNULL(c.goods_sign,''),IFNULL(c.ship_typen,''),
+							IFNULL(m.depositen,'')) 
+							LIKE CONCAT('%', #{item},'%')
+							OR m.goods_id = #{item}
+							OR c.goods_code = #{item}
+							OR m.postage_stylen = #{item})
+						</foreach>
+					</if>
+					<if test="pd.sShipType != null and pd.sShipType != '' ">
+						AND
+						m.ship_type = #{pd.sShipType}
+					</if>
+				)
+		) cua
+	</select>
+
+	<!-- 根据类目等值搜索商品 -->
+	<select id="getGoodsListByCagegory" parameterType="page"
+		resultMap="goodsCommonResultMap">
+		SELECT
+		c.goods_id,
+		c.goods_name,
+		c.brand_id,
+		c.brand_name,
+		c.ship_type,
+		c.goods_sign,
+		c.category2_id,
+		c.category2,
+		c.main_map,
+		m.relate1_gid,
+		m.relate2_gid,
+		m.goods_price1,
+		m.rnum1,
+		m.goods_price2,
+		m.rnum2,
+		m.rnum3,
+		m.market_price,
+		m.goods_sales,
+		m.fake_sales,
+		m.goods_stock,
+		m.jd_price,
+		m.tb_price,
+		m.sell_store_num
+		FROM
+		aurorascm.goods_common c
+		INNER JOIN
+		aurorascm.goods_manage m
+		ON
+		c.goods_id = m.goods_id
+		WHERE m.goods_state =
+		'4'
+		<if test=" pd.keyword1 != null and pd.keyword1 != ''">
+			AND
+			(
+			c.category1 = #{pd.keyword1}
+			or
+			c.category2 =
+			#{pd.keyword1}
+			or
+			c.category3 = #{pd.keyword1}
+			or
+			c.keyword1 =
+			#{pd.keyword1}
+			or
+			c.keyword2 = #{pd.keyword1}
+			or
+			c.keyword3 =
+			#{pd.keyword1}
+			)
+		</if>
+	</select>
+
+	<!-- 根据邮寄方式等值搜索商品 -->
+	<select id="getGoodsByshipType" parameterType="page"
+		resultMap="goodsCommonResultMap">
+		SELECT
+		c.goods_id,
+		c.goods_name,
+		c.brand_id,
+		c.brand_name,
+		c.ship_type,
+		c.goods_sign,
+		c.category2_id,
+		c.category2,
+		c.main_map,
+		m.relate1_gid,
+		m.relate2_gid,
+		m.goods_price1,
+		m.rnum1,
+		m.goods_price2,
+		m.rnum2,
+		m.rnum3,
+		m.market_price,
+		m.goods_sales,
+		m.fake_sales,
+		m.goods_stock,
+		m.jd_price,
+		m.tb_price,
+		m.sell_store_num,
+		(m.fake_sales+m.goods_sales) sales
+		FROM
+		aurorascm.goods_common c
+		INNER JOIN
+		aurorascm.goods_manage m
+		ON
+		c.goods_id = m.goods_id
+		WHERE
+		m.goods_state = '4'
+		<if test="pd.shipType != null and pd.shipType != ''">
+			AND
+			c.ship_type = #{pd.shipType}
+		</if>
+		<if test="pd.orderBY=='1'.toString()">
+			ORDER BY sales DESC
+		</if>
+		<if test="pd.orderBY=='2'.toString()">
+			ORDER BY m.review_time DESC
+		</if>
+		<if test="pd.orderBY=='3'.toString()">
+			ORDER BY m.goods_price2 ${pd.orderAD}
+		</if>
+		LIMIT
+		#{fromIndex}, #{pageSize}
+	</select>
+
+
+	<!-- 根据邮寄方式等值搜索商品总数 -->
+	<select id="getGNumByshipType" parameterType="page" resultType="int">
+		SELECT
+		count(goods_id) num
+		FROM
+		aurorascm.goods_manage
+		WHERE
+		goods_state = '4'
+		<if test="pd.shipType != null and pd.shipType != ''">
+			AND
+			ship_type = #{pd.shipType}
+		</if>
+	</select>
+
+
+	<!-- 根据二级类目ID得到相关推荐商品 -->
+	<select id="getLikeGoods" parameterType="pd" resultType="pd">
+		SELECT
+		c.goods_id,
+		c.goods_name,
+		c.brand_id,
+		c.brand_name,
+		c.ship_type,
+		c.goods_sign,
+		c.category2_id,
+		c.category2,
+		c.main_map,
+		m.relate1_gid,
+		m.relate2_gid,
+		m.goods_price1,
+		m.rnum1,
+		m.goods_price2,
+		m.rnum2,
+		m.rnum3,
+		m.market_price,
+		m.goods_sales,
+		m.fake_sales,
+		m.goods_stock,
+		m.jd_price,
+		m.tb_price,
+		m.deposit,
+		m.sell_store_num
+		FROM
+		aurorascm.goods_common c
+		INNER JOIN
+		aurorascm.goods_manage m
+		ON
+		c.goods_id = m.goods_id
+		WHERE
+		c.category2_id =
+		#{category2ID}
+		AND
+		m.goods_state = '4'
+		ORDER BY RAND()
+		LIMIT 0, 6
+	</select>
+
+	<!-- 搜索页根据综合条件S5得到品牌所有商品 -->
+	<select id="getGoodsListByS5" parameterType="page" resultType="pd">
+		SELECT
+		c.goods_id,
+		c.goods_name,
+		c.brand_id,
+		c.brand_name,
+		c.ship_type,
+		c.goods_sign,
+		c.category2_id,
+		c.category2,
+		c.main_map,
+		m.relate1_gid,
+		m.relate2_gid,
+		m.goods_price1,
+		m.rnum1,
+		m.goods_price2,
+		m.rnum2,
+		m.rnum3,
+		m.market_price,
+		m.goods_sales,
+		m.fake_sales,
+		m.goods_stock,
+		m.jd_price,
+		m.tb_price,
+		m.deposit,
+		m.sell_store_num
+		FROM
+		aurorascm.goods_common c
+		INNER JOIN
+		aurorascm.goods_manage m
+		ON
+		c.goods_id = m.goods_id
+		WHERE
+		c.brand_id =
+		#{pd.brandID}
+		AND
+		m.goods_state = '4'
+		<if test=" pd.sShipType != null">
+			AND
+			c.ship_type = #{pd.sShipType}
+		</if>
+		<if test=" pd.sOrderColumn != null">
+			ORDER BY
+			m.${pd.sOrderColumn} ${pd.sOrderAD}
+		</if>
+	</select>
+
+	<!-- 搜索页根据综合条件S5得到品牌所有商品 -->
+	<select id="getGoodsList2ByS5" parameterType="page"
+		resultMap="goodsCommonResultMap">
+		SELECT
+		c.goods_id,
+		c.goods_name,
+		c.brand_id,
+		c.brand_name,
+		c.ship_type,
+		c.goods_sign,
+		c.category2_id,
+		c.category2,
+		c.main_map,
+		m.relate1_gid,
+		m.relate2_gid,
+		m.goods_price1,
+		m.rnum1,
+		m.goods_price2,
+		m.rnum2,
+		m.rnum3,
+		m.market_price,
+		m.goods_sales,
+		m.fake_sales,
+		m.goods_stock,
+		m.jd_price,
+		m.tb_price,
+		m.deposit,
+		m.sell_store_num
+		FROM
+		aurorascm.goods_common c
+		INNER JOIN
+		aurorascm.goods_manage m
+		ON
+		c.goods_id = m.goods_id
+		WHERE
+		m.goods_state =
+		'4'
+		<if test=" pd.keyword1 != null">
+			AND
+			(
+			c.goods_name = #{pd.keyword1}
+			or
+			c.brand_name =
+			#{pd.keyword1}
+			or
+			c.category1 = #{pd.keyword1}
+			or
+			c.category2 =
+			#{pd.keyword1}
+			or
+			c.category3 = #{pd.keyword1}
+			or
+			c.keyword1 =
+			#{pd.keyword1}
+			or
+			c.keyword2 = #{pd.keyword1}
+			or
+			c.keyword3 =
+			#{pd.keyword1}
+			or
+			c.keyword4 = #{pd.keyword1}
+			or
+			c.keyword5 =
+			#{pd.keyword1}
+			or
+			c.goods_colour = #{pd.keyword1}
+			or
+			c.product_area =
+			#{pd.keyword1}
+			or
+			c.goods_purpose = #{pd.keyword1}
+			or
+			c.goods_sign =
+			#{pd.keyword1}
+			or
+			c.goods_id = #{pd.keyword1}
+			or
+			c.goods_code =
+			#{pd.keyword1}
+			)
+		</if>
+		<if test=" pd.sShipType != null">
+			AND
+			c.ship_type = #{pd.sShipType}
+		</if>
+		<if test=" pd.sBrand != null">
+			AND
+			c.brand_name = #{pd.sBrand}
+		</if>
+		<if test=" pd.sOrderColumn != null">
+			ORDER BY
+			m.${pd.sOrderColumn} ${pd.sOrderAD}
+		</if>
+	</select>
+
+	<!-- 搜索页根据综合条件S5得到品牌所有商品 -->
+	<select id="getGoodsLikeS5" parameterType="page" resultMap="goodsCommonResultMap">
+		SELECT
+		c.goods_id,
+		c.goods_name,
+		c.brand_id,
+		c.brand_name,
+		c.ship_type,
+		c.goods_sign,
+		c.category2_id,
+		c.category2,
+		c.main_map,
+		m.relate1_gid,
+		m.relate2_gid,
+		m.goods_price1,
+		m.rnum1,
+		m.goods_price2,
+		m.rnum2,
+		m.rnum3,
+		m.market_price,
+		m.goods_sales,
+		m.fake_sales,
+		m.goods_stock,
+		m.jd_price,
+		m.tb_price,
+		m.deposit,
+		m.sell_store_num
+		FROM
+		aurorascm.goods_common c
+		INNER JOIN
+		aurorascm.goods_manage m
+		ON
+		c.goods_id = m.goods_id
+		WHERE
+		m.goods_state =
+		'4'
+		<if test=" pd.keyword1 != null">
+			AND
+			(
+			c.goods_name LIKE CONCAT(CONCAT('%',
+			#{pd.keyword1}),'%')
+			or
+			c.brand_name LIKE CONCAT(CONCAT('%',
+			#{pd.keyword1}),'%')
+			or
+			c.category1 LIKE CONCAT(CONCAT('%',
+			#{pd.keyword1}),'%')
+			or
+			c.category2 LIKE CONCAT(CONCAT('%',
+			#{pd.keyword1}),'%')
+			or
+			c.category3 LIKE CONCAT(CONCAT('%',
+			#{pd.keyword1}),'%')
+			or
+			c.keyword1 LIKE CONCAT(CONCAT('%',
+			#{pd.keyword1}),'%')
+			or
+			c.keyword2 LIKE CONCAT(CONCAT('%',
+			#{pd.keyword1}),'%')
+			or
+			c.keyword3 LIKE CONCAT(CONCAT('%',
+			#{pd.keyword1}),'%')
+			or
+			c.keyword4 LIKE CONCAT(CONCAT('%',
+			#{pd.keyword1}),'%')
+			or
+			c.keyword5 LIKE CONCAT(CONCAT('%',
+			#{pd.keyword1}),'%')
+			or
+			c.goods_colour LIKE CONCAT(CONCAT('%',
+			#{pd.keyword1}),'%')
+			or
+			c.product_area LIKE CONCAT(CONCAT('%',
+			#{pd.keyword1}),'%')
+			or
+			c.goods_purpose LIKE CONCAT(CONCAT('%',
+			#{pd.keyword1}),'%')
+			or
+			c.goods_sign LIKE CONCAT(CONCAT('%',
+			#{pd.keyword1}),'%')
+			or
+			c.ship_typen LIKE CONCAT(CONCAT('%',
+			#{pd.keyword1}),'%')
+			)
+		</if>
+		<if test=" pd.sShipType != null">
+			AND
+			c.ship_type = #{pd.sShipType}
+		</if>
+		<if test=" pd.sBrand != null">
+			AND
+			c.brand_name = #{pd.sBrand}
+		</if>
+		<if test=" pd.sOrderColumn != null">
+			ORDER BY
+			m.${pd.sOrderColumn} ${pd.sOrderAD}
+		</if>
+	</select>
+
+
+
+<!-- SSY 查询专题活动商品 -->
+	<select id="getSpecialGoods" parameterType="String" resultType="pd">
+		SELECT
+			c.goods_id,
+			c.goods_name,
+			c.brand_id,
+			c.brand_name,
+			c.ship_type,
+			c.goods_sign,
+			c.category2_id,
+			c.category2,
+			c.main_map,
+			m.relate1_gid,
+			m.relate2_gid,
+			m.goods_price1,
+			m.rnum1,
+			m.goods_price2,
+			m.rnum2,
+			m.rnum3,
+			m.market_price,
+			m.goods_sales,
+			m.fake_sales,
+			m.goods_stock,
+			m.jd_price,
+			m.tb_price,
+			m.sell_store_num,
+			m.deposit,
+			hs.special_map,
+			hsg.special_id
+		FROM
+			aurorascm.goods_common c
+		INNER JOIN
+			aurorascm.goods_manage m
+		ON
+			c.goods_id = m.goods_id
+		INNER JOIN
+			aurorascm.home_special_goods hsg
+		ON
+			hsg.goods_id = c.goods_id
+		INNER JOIN
+			aurorascm.home_special hs
+		ON
+			hs.special_id = hsg.special_id
+		WHERE m.goods_state = '4'
+		AND hsg.special_id = #{specialID}
+	</select>
+
+
+</mapper>

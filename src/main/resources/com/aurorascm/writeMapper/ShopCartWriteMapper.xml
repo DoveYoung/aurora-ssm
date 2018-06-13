@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ShopCartWriteMapper">
+
+	<!-- 字段 customer_id -->
+	<sql id="Field">
+		customer_id,
+		goods_id,
+		buy_num,
+		payment_type,
+		ship_type,
+		create_time
+	</sql>
+	
+	<!-- 字段值 #{customerID}-->
+	<sql id="FieldValue">
+		#{customerID},
+		#{goodsID},
+		#{buyNum},
+		#{paymentType},
+		#{shipType},
+		#{time}
+	</sql>
+	
+	<!-- 添加商品到购物车 -->
+	<insert id="addGToCart" parameterType="pd" >
+		INSERT INTO
+			aurorascm.shop_cart
+		(
+			<include refid="Field"></include>
+		) VALUES (
+			<include refid="FieldValue"></include>
+		)
+	</insert>
+	
+	<!-- 根据cartID改变购物车单商品数量 -->
+	<update id="updateCartGN" parameterType="pd" >
+		UPDATE 
+			aurorascm.shop_cart
+		SET
+			buy_num = #{buyNum},
+			update_time = #{time}
+		WHERE 
+			cart_id = #{cartID}
+	</update>
+	
+	<!-- 删除购物车单个商品 -->
+	<delete id="deleteCartUG" parameterType="pd">
+		DELETE FROM 
+			aurorascm.shop_cart
+		WHERE 
+			cart_id = #{cartID}
+	</delete>
+
+	<!-- 批量删除购物车商品  -->
+	<delete id="bDeleteCartG" parameterType="int" >
+		DELETE FROM 
+			aurorascm.shop_cart
+		WHERE 
+			cart_id in
+  			 <foreach item="cartID" index="index" collection="array" open="(" separator="," close=")">
+                  #{cartID}
+             </foreach>
+	</delete>
+	
+	<!-- 新增收获地址 -->
+	<insert id="addShipAddr" parameterType="pd" >
+		INSERT INTO
+			aurorascm.ship_address
+		(
+			customer_id,
+			name,
+			mobile,
+			province,
+			city,
+			area,
+			detail_address,
+			id_card,
+			operate_time
+		) VALUES (
+			#{customerID},
+			#{name},
+			#{mobile},
+			#{province},
+			#{city},
+			#{area},
+			#{detail_address},
+			#{IDCard},
+			#{operateTime}
+		)
+	</insert>
+	
+</mapper>

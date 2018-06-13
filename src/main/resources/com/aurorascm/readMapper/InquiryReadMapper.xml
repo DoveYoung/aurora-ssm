@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="InquiryReadMapper">
+	<resultMap type="com.aurorascm.entity.InquiryManage" id="InquiryManageResultMap">
+		<id column="inquiry_id" property="inquiryID"/>
+		<result column="sales_manager" property="salesManager"/>
+		<result column="inquiry_state" property="inquiryState"/>
+		<result column="inquiry_time" property="inquiryTime"/>
+		<result column="customer_id" property="customerID"/>
+		<result column="customer_name" property="customerName"/>
+		<result column="customer_email" property="customerEmail"/>
+		<result column="customer_mobile" property="customerMobile"/>
+		<result column="source_id" property="sourceID"/>
+		<result column="inquiry_times" property="inquiryTimes"/>
+		<collection property="inquiryGoodsList" column="inquiry_id" ofType="com.aurorascm.entity.InquiryGoods">
+			<id column="inquiry_goods_id" property="inquiryGoodsID"/>
+			<result column="inquiry_id" property="inquiryID"/>
+			<result column="goods_name" property="goodsName"/>
+			<result column="goods_map" property="goodsMap"/>
+			<result column="goods_brand" property="goodsBrand"/>
+			<result column="goods_norm" property="goodsNorm"/>
+			<result column="goods_code" property="goodsCode"/>
+			<result column="buy_num" property="buyNum"/>
+			<result column="update_num" property="updateNum"/>
+			<result column="deliver_country" property="deliverCountry"/>
+			<result column="deliver_city" property="deliverCity"/>
+			<result column="logistics_type" property="logisticsType"/>
+			<result column="trade_type" property="tradeType"/>
+			<result column="ready_time" property="readyTime"/>
+			<result column="valid_time" property="validTime"/>
+			<result column="customer_remark" property="customerRemark"/>
+			<result column="currency_sign" property="currencySign"/>
+			<result column="currency_name" property="currencyName"/>
+			<result column="goods_price" property="goodsPrice"/> 
+			<result column="supply_price" property="supplyPrice"/>
+			<result column="postage" property="postage"/>
+			<result column="pallet_volume" property="palletVolume"/> 
+			<result column="volume" property="volume"/>
+			<result column="pallet_price" property="palletPrice"/>
+			<result column="inquiry_goods_state" property="inquiryGoodsState"/>
+		</collection>
+	</resultMap>
+	<resultMap type="com.aurorascm.entity.InquiryGoods" id="InquiryGoodsResultMap">
+		<id column="inquiry_id" property="inquiryID"/>
+		<result column="inquiry_goods_id" property="inquiryGoodsID"/>
+		<result column="goods_name" property="goodsName"/>
+		<result column="goods_map" property="goodsMap"/>
+		<result column="goods_brand" property="goodsBrand"/>
+		<result column="goods_norm" property="goodsNorm"/>
+		<result column="goods_code" property="goodsCode"/>
+		<result column="buy_num" property="buyNum"/>
+		<result column="update_num" property="updateNum"/>
+		<result column="deliver_country" property="deliverCountry"/>
+		<result column="deliver_city" property="deliverCity"/>
+		<result column="logistics_type" property="logisticsType"/>
+		<result column="trade_type" property="tradeType"/>
+		<result column="ready_time" property="readyTime"/>
+		<result column="valid_time" property="validTime"/>
+		<result column="customer_remark" property="customerRemark"/>
+		<result column="currency_sign" property="currencySign"/>
+		<result column="currency_name" property="currencyName"/>
+		<result column="pallet_volume" property="palletVolume"/>
+		<result column="volume" property="volume"/>
+		<result column="pallet_price" property="palletPrice"/>
+		<result column="goods_price" property="goodsPrice"/>
+		<result column="supply_price" property="supplyPrice"/>
+		<result column="postage" property="postage"/>
+		<result column="inquiry_goods_state" property="inquiryGoodsState"/>
+		<result column="record" property="record"/>
+		<result column="inputor" property="inputor"/>
+		<result column="input_time" property="inputTime"/>
+	</resultMap>
+
+
+	<!-- @author SSY 2018-1-5 条件查询询价单列表; -->
+	<select id="getInquiryList" parameterType="page" resultMap="InquiryManageResultMap">
+		SELECT
+			*
+		FROM
+			aurorascm.inquiry_sheet s
+		INNER JOIN 
+			aurorascm.inquiry_goods g
+		ON 
+			s.inquiry_id = g.inquiry_id
+		WHERE 
+			s.customer_id = #{pd.customerID}
+		<if test="pd.inquiryState!=null and pd.inquiryState == 3 "><!-- 失效状态 -->
+			AND g.inquiry_goods_state = 4
+		</if>
+		<if test="pd.inquiryState!=null and pd.inquiryState != 3 "><!-- 失效状态 -->
+			AND s.inquiry_state = #{pd.inquiryState}
+		</if>
+		<if test="pd.keyWord!=null">
+			AND (	s.inquiry_id = #{pd.keyWord}
+				 OR 	
+					g.goods_name LIKE CONCAT ('%',#{pd.keyWord},'%')
+				)
+		</if>
+		<if test="pd.beginTimes!=null">
+			AND s.inquiry_time &gt; #{pd.beginTimes}
+		</if>
+		ORDER BY
+			s.inquiry_time DESC
+		LIMIT 
+			#{fromIndex}, #{pageSize}
+	</select>
+	
+	<!-- @author SSY 2018-1-5 条件查询询价单数量列表; -->
+	<select id="getInquiryNum" parameterType="page" resultType="int">
+		SELECT
+			count(DISTINCT s.inquiry_id) as num
+		FROM
+			aurorascm.inquiry_sheet s
+		INNER JOIN 
+			aurorascm.inquiry_goods g
+		ON 
+			s.inquiry_id = g.inquiry_id
+		WHERE 
+			s.customer_id = #{pd.customerID}
+		<if test="pd.inquiryState!=null and pd.inquiryState == 3 "><!-- 失效状态 -->
+			AND g.inquiry_goods_state = 4
+		</if>
+		<if test="pd.inquiryState!=null and pd.inquiryState != 3 "><!-- 失效状态 -->
+			AND s.inquiry_state = #{pd.inquiryState}
+		</if>
+		<if test="pd.keyWord!=null">
+			AND (	s.inquiry_id = #{pd.keyWord}
+				 OR 	
+					g.goods_name LIKE CONCAT ('%',#{pd.keyWord},'%')
+				)
+		</if>
+		<if test="pd.beginTimes!=null">
+			AND s.inquiry_time &gt; #{pd.beginTimes}
+		</if>
+	</select>
+
+	<!-- @author SSY 2018-1-5 条件查询询价单数量列表; -->
+	<select id="getInquiryStateNum" parameterType="pd" resultType="int">
+		SELECT
+			count(DISTINCT inquiry_id) as num
+		FROM
+			aurorascm.inquiry_sheet 
+		WHERE 
+			 customer_id = #{customerID}
+		AND 
+			inquiry_state = #{inquiryState}
+	</select>
+	
+	<!-- @author SSY 2018-1-5 根据询价id和用户id查询询价单; -->
+	<select id="getInquiry" parameterType="pd" resultMap="InquiryManageResultMap">
+		SELECT
+			s.inquiry_id,s.customer_id,s.customer_email,s.customer_mobile,s.inquiry_state,s.inquiry_times,
+			g.goods_name,g.goods_map,g.goods_brand,g.goods_norm,g.goods_code,g.buy_num,g.deliver_country,g.deliver_city,
+			g.logistics_type,g.trade_type,g.currency_sign,g.currency_name,g.inquiry_goods_state
+		FROM
+			aurorascm.inquiry_sheet s
+		INNER JOIN 
+			aurorascm.inquiry_goods g
+		ON 
+			s.inquiry_id = g.inquiry_id
+		WHERE 
+			s.customer_id = #{customerID}
+		AND 
+			s.inquiry_id = #{inquiryID}
+	</select>
+	
+	<!-- @author SSY 2018-1-11 查询有效询价单商品信息; -->
+	<select id="getValidInquiry" parameterType="pd" resultMap="InquiryManageResultMap">
+		SELECT
+			s.inquiry_id,s.customer_id,s.customer_name,s.customer_email,s.customer_mobile,s.inquiry_state,s.sales_manager,
+			inquiry_goods_id,g.goods_name,g.goods_map,g.goods_brand,g.goods_norm,g.goods_code,g.buy_num,g.deliver_country,g.deliver_city, g.update_num, g.pallet_volume,g.ready_time,
+			g.pallet_price, g.volume, g.logistics_type,g.trade_type,g.currency_sign,g.currency_name,g.inquiry_goods_state,g.goods_price,g.supply_price,g.postage
+		FROM
+			aurorascm.inquiry_sheet s
+		INNER JOIN 
+			aurorascm.inquiry_goods g
+		ON 
+			s.inquiry_id = g.inquiry_id
+		WHERE 
+			s.customer_id = #{customerID}
+		AND 
+			s.inquiry_id = #{inquiryID}
+		AND 
+			s.inquiry_state = #{inquiryState}
+		AND 
+			g.inquiry_goods_state = #{inquiryGoodsState}
+	</select>
+	
+	 
+	<!-- @author SSY 2018-1-5  获取所有货币符号以及货币名称; -->
+	<select id="getCurrency" resultType="pd">
+		SELECT
+			name as currency_name,
+			value as currency_sign
+		FROM
+			aurora.dictionary
+		WHERE
+			p_id = 10000
+	</select>
+	
+	<!-- ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ ↑ -->
+	<!-- **************************************我是分割线******************************************* -->
+	<!-- ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ -->
+
+ 
+
+	
+
+</mapper>

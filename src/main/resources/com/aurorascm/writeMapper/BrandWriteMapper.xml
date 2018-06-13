@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="BrandWriteMapper">
+
+	<update id="addCareNum" parameterType="pd">
+		UPDATE
+		aurorascm.brand
+		SET
+		care_num = care_num+1
+		WHERE
+		brand_id = #{brandID}
+	</update>
+
+	<update id="decreaseCareNum" parameterType="pd">
+		UPDATE
+		aurorascm.brand
+		SET
+		care_num = care_num-1
+		WHERE
+		brand_id = #{brandID}
+	</update>
+
+
+
+
+
+</mapper>

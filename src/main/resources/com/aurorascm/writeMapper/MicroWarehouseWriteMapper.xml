@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="MicroWarehouseWriteMapper">
+
+	<!-- 删除客户微仓中单个商品 -->
+	<delete id="deleteMWGoods" parameterType="pd">
+		DELETE FROM 
+			aurorascm.mw_goods
+		WHERE 
+			mwg_id = #{mwgID}
+	</delete>
+	
+	<!-- 保存微仓订单商品 -->
+	<insert id="saveMWOrderGoods" parameterType="pd">
+		INSERT INTO aurorascm.mw_order_goods (
+			mw_order_id,
+			mwg_id,
+			send_num,
+			advance_pay,
+			final_pay
+		)VALUES	(
+			#{mwOrderID},
+			#{mwgID},
+			#{sendNum},
+			#{advancePay},
+			#{finalPay}
+		)
+	</insert>
+	
+	<!-- 新增保存微仓订单 -->
+	<insert id="saveMWOrder" parameterType="pd">
+		INSERT INTO aurorascm.mw_order_manage (
+			mw_order_id,
+			customer_id,
+			consignee,			
+			ship_address,
+			consignee_mobile,
+			consignee_id_card,
+			order_time,
+			customer_remark,
+			customer_name
+		)VALUES	(
+			#{mwOrderID},
+			#{customerID},
+			#{consignee},
+			#{shipAddress},
+			#{consigneeMobile},
+			#{consigneeIDCard},
+			#{orderTime},
+			#{customerRemark},
+			#{customerName}
+		)
+	</insert>
+	
+	<!-- 更新微仓订单数量 -->
+	<update id="updateMWGoodsNum" parameterType="pd" >
+		UPDATE 
+			aurorascm.mw_goods
+		SET
+			goods_num = #{afterGoodsNum} 
+		WHERE 
+			mwg_id = #{mwgID}
+	</update>
+	
+	<!-- 更新微仓订单支付订单ID -->
+	<update id="updateMWPayOrderID" parameterType="pd" >
+		UPDATE 
+			aurorascm.mw_order_manage
+		SET
+			out_trade_no = #{payOrderID} 
+		WHERE 
+			mw_order_id in
+				<foreach item="ArrayMWOrderID" index="index" collection="ArrayMWOrderID" open="(" separator="," close=")">
+	        		#{ArrayMWOrderID}
+	        	</foreach>
+	</update>
+	
+	
+	<!-- 更新微仓订单邮费 -->
+	<update id="updateMWOPostage" parameterType="pd" >
+		UPDATE 
+			aurorascm.mw_order_manage
+		SET
+			postage = #{tPostage} 
+		WHERE 
+			mw_order_id = #{mwOrderID} 
+	</update>
+	
+	<!-- 批量删除微仓订单 --><!-- 微仓订单二次订单不需要支付直接发货，从微仓订单中删除 -->
+	<delete id="deleteMWOrder" parameterType="String">
+		DELETE 
+			m,g 
+		FROM 
+			aurorascm.mw_order_goods g
+		INNER JOIN
+			aurorascm.mw_order_manage m
+		ON 
+			g.mw_order_id = m.mw_order_id
+		WHERE 
+			m.mw_order_id in
+				<foreach item="ArrayMWOrderID" index="index" collection="array" open="(" separator="," close=")">
+	        		#{ArrayMWOrderID}
+	        	</foreach>
+	</delete>
+	
+	<!-- 微仓订单支付成功后从微仓订单中删除 -->
+	<delete id="deleteMWOrderAfterPay" parameterType="String">
+		DELETE 
+			m,g 
+		FROM 
+			aurorascm.mw_order_goods g
+		INNER JOIN
+			aurorascm.mw_order_manage m
+		ON 
+			g.mw_order_id = m.mw_order_id
+		WHERE 
+			m.out_trade_no = #{payOrderID}
+	</delete>
+		
+</mapper>

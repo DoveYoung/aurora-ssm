@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="AreaAddrWriteMapper">
+
+	<!-- 新增收获地址 -->
+	<insert id="addShipAddr" parameterType="pd" >
+		INSERT INTO
+			aurorascm.ship_address
+		(
+			customer_id,
+			name,
+			mobile,
+			telephone,
+			province,
+			province_pin,
+			city,
+			area,
+			detail_address,
+			id_card,
+			address_type,
+			operate_time
+		) VALUES (
+			#{customerID},
+			#{name},
+			#{mobile},
+			#{telephone},
+			#{province},
+			#{provincePin},
+			#{city},
+			#{area},
+			#{detailAddr},
+			#{IDCard},
+			#{addressType},
+			#{operateTime}
+		)
+	</insert>
+	
+	<!--保存修改之后的收获地址 -->
+	<insert id="updateShipAddr" parameterType="pd" >
+	UPDATE 
+		aurorascm.ship_address
+	SET
+			name = #{name},
+			mobile = #{mobile},
+			telephone = #{telephone},
+			province = #{province},
+			province_pin = #{provincePin},
+			city = #{city},
+			area = #{area},
+			detail_address = #{detailAddr},
+			id_card = #{IDCard},
+			operate_time = #{operateTime}
+		WHERE
+			sa_id = #{saID}
+		AND 
+			customer_id = #{customerID}
+	</insert>
+	
+	
+	<!-- 批量删除个人收货地址 -->
+	<delete id="deleteShipAddr" parameterType="pd" >
+	DELETE FROM 
+			aurorascm.ship_address
+		WHERE 
+			customer_id = #{customerID}
+        AND 
+			sa_id IN
+  			 <foreach item="item" index="index" collection="saIDs" open="(" separator="," close=")">
+                  #{item}
+             </foreach>
+	</delete>
+	
+	<!-- BYG 2017.12.21 更新收获地址使用次数-->
+	<update id="updateShipAddrUsedTimes" parameterType="String" >
+		UPDATE 
+			aurorascm.ship_address
+		SET
+			times_used = times_used + 1
+		WHERE
+			sa_id = #{saID}
+	</update>
+	
+	
+</mapper>

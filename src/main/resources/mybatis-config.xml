@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+	<!DOCTYPE configuration
+	  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+	  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+	<configuration>
+		<settings>
+			<setting name="cacheEnabled" value="true" />
+			<setting name="lazyLoadingEnabled" value="true" />
+			<setting name="aggressiveLazyLoading" value="true" />
+			<setting name="multipleResultSetsEnabled" value="true" />
+			<setting name="useColumnLabel" value="true" />
+			<setting name="useGeneratedKeys" value="false" />
+			<setting name="autoMappingBehavior" value="PARTIAL" />
+			<setting name="defaultExecutorType" value="SIMPLE" />
+			<setting name="defaultStatementTimeout" value="25000" />
+			<setting name="safeRowBoundsEnabled" value="false" />
+			<setting name="safeResultHandlerEnabled" value="false" />
+			<setting name="mapUnderscoreToCamelCase" value="true" />
+			<setting name="localCacheScope" value="SESSION" />
+			<setting name="jdbcTypeForNull" value="NULL" />
+			<setting name="lazyLoadTriggerMethods" value="equals,clone,hashCode,toString" />
+		</settings>
+		<!-- 设置类别名 -->
+		<typeAliases>
+		 	<typeAlias type="com.aurorascm.entity.Customer" alias="Customer"/>
+		 	<typeAlias type="com.aurorascm.entity.Brand" alias="Brand"/>
+		 	<typeAlias type="com.aurorascm.entity.GoodsCategory" alias="GoodsCategory"/>
+		 	<typeAlias type="com.aurorascm.entity.GoodsCommon" alias="GoodsCommon"/>
+		 	<typeAlias type="com.aurorascm.entity.GoodsDetails" alias="GoodsDetails"/>
+		 	<typeAlias type="com.aurorascm.entity.GoodsManage" alias="GoodsManage"/>
+		 	<typeAlias type="com.aurorascm.entity.SearchKeyword" alias="SearchKeyword"/>
+		 	<typeAlias type="com.aurorascm.entity.GTableColumn" alias="GTableColumn"/>
+		 	<typeAlias type="com.aurorascm.entity.CartGoods" alias="CartGoods"/>
+		 	<typeAlias type="com.aurorascm.entity.OrderGoods" alias="OrderGoods"/>
+			<!-- 分页 -->
+			<typeAlias type="com.aurorascm.entity.Page" alias="Page"/>
+			<typeAlias type="com.aurorascm.util.PageData" alias="pd"/>
+			<typeAlias alias="biginteger" type="java.math.BigInteger"/>
+		</typeAliases>
+		<!-- 数据类型转换 -->
+		<typeHandlers></typeHandlers>
+	</configuration>
